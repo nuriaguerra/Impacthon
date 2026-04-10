@@ -1,8 +1,8 @@
 # Impacthon 2026
-Somo completamente novatos en esto, es mas que nada para la experiencia y aprender.
+Somos completamente novatos en esto, es mas que nada para la experiencia y aprender.
 # AUTORES:
   - Carolina Silva Rey
-  - Martín García Cedeiro
+  - Martín García Cebeiro
   - Nuria Guerra Casal
   - Iago Leis Fernández
 
