@@ -393,27 +393,9 @@ function joinGroup(code) {
 ───────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
 
-  // 1. LIMPIEZA INICIAL: Asegurar que nada empiece abierto
+  // Arranque directo: sen splash, sen login, entrar en modo demo inmediatamente
   closeAllModals();
-
-  // ── Splash → Auth tras 2s ──
-  setTimeout(() => {
-    showScreen('screen-auth');
-  }, 2000);
-
-  // 2. LOGIN: Con protección anti-ghost-click (50ms de delay)
-  const handleLogin = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    // Cerramos cualquier modal por si acaso antes de saltar a la app
-    closeAllModals(); 
-    setTimeout(() => {
-      enterDemoMode();
-    }, 50);
-  };
-
-  document.getElementById('btn-google-login')?.addEventListener('click', handleLogin);
-  document.getElementById('btn-demo-login')?.addEventListener('click', handleLogin);
+  enterDemoMode();
 
   // ── Logout ──
   document.getElementById('btn-logout')?.addEventListener('click', () => {
@@ -440,9 +422,12 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ── Navegación ──
-  document.querySelectorAll('[data-page]').forEach(el => {
+  // Só aplicamos o listener de navegación á barra inferior e botóns de ligazón explícitos,
+  // NON a calquera elemento con data-page (evita conflitos con outros botóns).
+  document.querySelectorAll('.nav-btn[data-page], .btn-link[data-page]').forEach(el => {
     el.addEventListener('click', (e) => {
       e.preventDefault();
+      e.stopPropagation();
       navigateTo(el.dataset.page);
     });
   });

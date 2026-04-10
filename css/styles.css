@@ -1590,10 +1590,6 @@ body {
 .toast.success { border-color: var(--green); color: var(--green); }
 .toast.error   { border-color: var(--coral); color: var(--coral); }
 
-.auth-bg-shapes {
-  pointer-events: none;
-}
-
 /* ════════════════════════════════════════════════
    UTILIDADES
 ════════════════════════════════════════════════ */
