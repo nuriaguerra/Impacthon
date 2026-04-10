@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>MoveUp</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════
+       SPLASH SCREEN
+  ════════════════════════════════════════════════ -->
+  <div id="screen-splash" class="screen active">
+    <div class="splash-bg"></div>
+    <div class="splash-content">
+      <div class="splash-logo">
+        <span class="logo-icon">⚡</span>
+        <h1 class="logo-text">MoveUp</h1>
+      </div>
+      <p class="splash-tagline">Muévete. Compite. Vive.</p>
+      <div class="splash-loader">
+        <div class="loader-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       AUTH SCREEN (Login)
+  ════════════════════════════════════════════════ -->
+  <div id="screen-auth" class="screen">
+    <div class="auth-bg-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+    </div>
+    <div class="auth-content">
+      <div class="auth-logo">
+        <span class="logo-icon">⚡</span>
+        <h1 class="logo-text">MoveUp</h1>
+      </div>
+      <p class="auth-subtitle">Tu competición diaria con amigos</p>
+
+      <div class="auth-card">
+        <h2 class="auth-card-title">Empezar</h2>
+        <p class="auth-card-desc">Inicia sesión con tu cuenta de Google para continuar</p>
+
+        <button class="btn-google" id="btn-google-login">
+          <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Continuar con Google
+        </button>
+
+        <button id="btn-demo-login" style="width:100%; margin-top:8px; padding:14px; background:#e8ff47; color:#0d0d0f; border:none; border-radius:14px; font-size:15px; font-weight:700; cursor:pointer; position:relative; z-index:999;">
+            🧪 Entrar en modo demo
+        </button>
+
+        <div class="auth-divider"><span>o</span></div>
+
+        <p class="auth-note">Al continuar, aceptas nuestros términos de uso y política de privacidad.</p>
+      </div>
+
+      <p class="auth-footer">¿Primera vez? Tu perfil se creará automáticamente.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       ONBOARDING: CREAR / UNIRSE A GRUPO
+  ════════════════════════════════════════════════ -->
+  <div id="screen-onboarding" class="screen">
+    <div class="onboarding-content">
+      <div class="onboarding-header">
+        <div class="avatar-placeholder" id="onboarding-avatar">?</div>
+        <h2 id="onboarding-name">¡Hola!</h2>
+        <p class="onboarding-sub">Para empezar necesitas un grupo</p>
+      </div>
+
+      <div class="onboarding-options">
+        <button class="onboarding-card" id="btn-create-group">
+          <div class="onboarding-card-icon">🏆</div>
+          <div class="onboarding-card-body">
+            <h3>Crear grupo</h3>
+            <p>Sé el primero e invita a tus amigos</p>
+          </div>
+          <span class="arrow">›</span>
+        </button>
+        <button class="onboarding-card" id="btn-join-group">
+          <div class="onboarding-card-icon">🤝</div>
+          <div class="onboarding-card-body">
+            <h3>Unirse a grupo</h3>
+            <p>Tienes una invitación pendiente</p>
+          </div>
+          <span class="arrow">›</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       APP PRINCIPAL
+  ════════════════════════════════════════════════ -->
+  <div id="screen-app" class="screen">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-logo">⚡ MoveUp</span>
+      </div>
+      <div class="topbar-right">
+        <button class="btn-notif" id="btn-notifications" aria-label="Notificaciones">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          <span class="notif-badge" id="notif-badge" style="display:none">3</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- PAGE CONTAINER -->
+    <main class="page-container">
+
+      <!-- ── PAGE: HOME ── -->
+      <div id="page-home" class="page active">
+
+        <!-- Encuesta del día -->
+        <div class="daily-poll" id="daily-poll">
+          <div class="poll-header">
+            <span class="poll-label">☀️ Reto de hoy</span>
+            <span class="poll-timer" id="poll-timer">23:14:05</span>
+          </div>
+          <p class="poll-question">¿Dónde prefieres el reto de hoy?</p>
+          <div class="poll-options">
+            <button class="poll-btn" data-vote="indoor">🏠<br/>Interior</button>
+            <button class="poll-btn" data-vote="outdoor">🌳<br/>Exterior</button>
+            <button class="poll-btn" data-vote="random">🎲<br/>Aleatorio</button>
+          </div>
+        </div>
+
+        <!-- Reto del día -->
+        <div class="challenge-card" id="challenge-card">
+          <div class="challenge-header">
+            <span class="challenge-type-badge outdoor">🌳 Exterior</span>
+            <span class="challenge-xp">+150 XP</span>
+          </div>
+          <h2 class="challenge-title">Carrera de 5km</h2>
+          <p class="challenge-desc">Completa 5 kilómetros corriendo o caminando rápido. El recorrido es libre, ¡tú decides la ruta!</p>
+
+          <div class="challenge-meta">
+            <span class="meta-item">⏱️ ~45 min</span>
+            <span class="meta-item">💪 Físico</span>
+            <span class="meta-item">🌡️ Moderado</span>
+          </div>
+
+          <div class="challenge-actions">
+            <button class="btn-primary btn-complete" id="btn-complete-challenge">
+              ✅ Marcar completado
+            </button>
+            <button class="btn-secondary btn-details" id="btn-challenge-details">
+              Ver detalles
+            </button>
+          </div>
+        </div>
+
+        <!-- Leaderboard preview -->
+        <div class="section-card">
+          <div class="section-header">
+            <h3>🏆 Clasificación</h3>
+            <button class="btn-link" data-page="groups">Ver todo ›</button>
+          </div>
+          <div class="leaderboard-mini" id="leaderboard-mini">
+            <!-- Se rellena por JS -->
+          </div>
+        </div>
+
+        <!-- Racha personal -->
+        <div class="section-card streak-card">
+          <div class="streak-left">
+            <span class="streak-fire">🔥</span>
+            <div>
+              <p class="streak-label">Tu racha</p>
+              <p class="streak-count" id="streak-count">7 días</p>
+            </div>
+          </div>
+          <div class="streak-right">
+            <div class="streak-dots" id="streak-dots">
+              <!-- Se generan por JS: 7 días -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <!-- /page-home -->
+
+      <!-- ── PAGE: GRUPOS ── -->
+      <div id="page-groups" class="page">
+        <div class="page-title-row">
+          <h2 class="page-title">Mi Grupo</h2>
+          <button class="btn-icon" id="btn-invite-member">➕</button>
+        </div>
+
+        <div class="group-info-card" id="group-info-card">
+          <div class="group-avatar">🏅</div>
+          <div class="group-info">
+            <h3 id="group-name-display">Los Invencibles</h3>
+            <p id="group-code-display">Código: ABC123</p>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h3 class="section-title">🏆 Clasificación general</h3>
+          <div class="leaderboard-full" id="leaderboard-full">
+            <!-- Se rellena por JS -->
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h3 class="section-title">📅 Histórico de retos</h3>
+          <div class="challenge-history" id="challenge-history">
+            <!-- Se rellena por JS -->
+          </div>
+        </div>
+      </div>
+      <!-- /page-groups -->
+
+      <!-- ── PAGE: TIENDA ── -->
+      <div id="page-shop" class="page">
+        <div class="page-title-row">
+          <h2 class="page-title">Tienda</h2>
+          <div class="coins-display">
+            <span class="coin-icon">🪙</span>
+            <span id="user-coins">320</span>
+          </div>
+        </div>
+        <p class="page-subtitle">Gasta tus MoveCoins en power-ups y cosméticos</p>
+
+        <div class="shop-categories">
+          <button class="shop-cat active" data-cat="powerups">Power-ups</button>
+          <button class="shop-cat" data-cat="avatars">Avatares</button>
+          <button class="shop-cat" data-cat="titles">Títulos</button>
+        </div>
+
+        <div class="shop-grid" id="shop-grid">
+          <!-- Se rellena por JS -->
+        </div>
+      </div>
+      <!-- /page-shop -->
+
+      <!-- ── PAGE: PERFIL ── -->
+      <div id="page-profile" class="page">
+        <div class="profile-header">
+          <div class="profile-avatar-wrap">
+            <img id="profile-avatar-img" src="" alt="Avatar" class="profile-avatar" />
+            <div class="profile-level-badge" id="profile-level">Nv. 12</div>
+          </div>
+          <h2 id="profile-name">Tu nombre</h2>
+          <p id="profile-title" class="profile-title-tag">🌟 Corredor Élite</p>
+        </div>
+
+        <div class="profile-stats-grid">
+          <div class="stat-card">
+            <span class="stat-value" id="stat-xp">2.400</span>
+            <span class="stat-label">XP Total</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="stat-challenges">47</span>
+            <span class="stat-label">Retos hechos</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="stat-streak">7</span>
+            <span class="stat-label">Racha (días)</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="stat-rank">#2</span>
+            <span class="stat-label">Ranking</span>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h3 class="section-title">📋 Retos completados</h3>
+          <div class="completed-challenges" id="completed-challenges">
+            <!-- Se rellena por JS -->
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h3 class="section-title">🏅 Logros</h3>
+          <div class="achievements-grid" id="achievements-grid">
+            <!-- Se rellena por JS -->
+          </div>
+        </div>
+      </div>
+      <!-- /page-profile -->
+
+      <!-- ── PAGE: AJUSTES ── -->
+      <div id="page-settings" class="page">
+        <h2 class="page-title">Ajustes</h2>
+
+        <div class="settings-section">
+          <h3 class="settings-group-title">Cuenta</h3>
+          <div class="settings-list">
+            <div class="settings-item" id="settings-edit-name">
+              <span class="settings-icon">✏️</span>
+              <span class="settings-label">Nombre de usuario</span>
+              <span class="settings-arrow">›</span>
+            </div>
+            <div class="settings-item" id="settings-notifications">
+              <span class="settings-icon">🔔</span>
+              <span class="settings-label">Notificaciones</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="toggle-notif" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3 class="settings-group-title">Grupo</h3>
+          <div class="settings-list">
+            <div class="settings-item" id="settings-leave-group">
+              <span class="settings-icon">🚪</span>
+              <span class="settings-label">Salir del grupo</span>
+              <span class="settings-arrow">›</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3 class="settings-group-title">Acerca de</h3>
+          <div class="settings-list">
+            <div class="settings-item">
+              <span class="settings-icon">ℹ️</span>
+              <span class="settings-label">Versión 0.1.0 — Hackathon Edition</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-danger btn-logout" id="btn-logout">
+          Cerrar sesión
+        </button>
+      </div>
+      <!-- /page-settings -->
+
+    </main>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+      <button class="nav-btn" data-page="settings" aria-label="Ajustes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        <span>Ajustes</span>
+      </button>
+
+      <button class="nav-btn" data-page="groups" aria-label="Grupos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <span>Grupo</span>
+      </button>
+
+      <!-- BOTÓN CENTRAL -->
+      <button class="nav-btn nav-btn-center" data-page="home" aria-label="Inicio">
+        <div class="nav-center-circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+          </svg>
+        </div>
+      </button>
+
+      <button class="nav-btn" data-page="shop" aria-label="Tienda">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
+        <span>Tienda</span>
+      </button>
+
+      <button class="nav-btn" data-page="profile" aria-label="Perfil">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span>Perfil</span>
+      </button>
+    </nav>
+
+  </div>
+  <!-- /screen-app -->
+
+  <!-- ═══════════════════════════════════════════════
+       MODALES
+  ════════════════════════════════════════════════ -->
+
+  <!-- Modal: Crear grupo -->
+  <div id="modal-create-group" class="modal-overlay">
+    <div class="modal">
+      <button class="modal-close">✕</button>
+      <div class="modal-icon">🏆</div>
+      <h2 class="modal-title">Crear grupo</h2>
+      <p class="modal-desc">Dale un nombre a tu grupo y empieza a invitar amigos</p>
+      <input type="text" class="modal-input" id="input-group-name" placeholder="Nombre del grupo..." maxlength="30" />
+      <button class="btn-primary btn-full" id="btn-confirm-create-group">Crear grupo</button>
+    </div>
+  </div>
+
+  <!-- Modal: Unirse a grupo -->
+  <div id="modal-join-group" class="modal-overlay">
+    <div class="modal">
+      <button class="modal-close">✕</button>
+      <div class="modal-icon">🤝</div>
+      <h2 class="modal-title">Unirse a grupo</h2>
+      <p class="modal-desc">Introduce el código de 6 dígitos que te ha enviado un amigo</p>
+      <input type="text" class="modal-input modal-input-code" id="input-group-code" placeholder="ABC123" maxlength="6" />
+      <button class="btn-primary btn-full" id="btn-confirm-join-group">Unirse</button>
+    </div>
+  </div>
+
+  <!-- Modal: Invitar miembro -->
+  <div id="modal-invite" class="modal-overlay">
+    <div class="modal">
+      <button class="modal-close">✕</button>
+      <div class="modal-icon">✉️</div>
+      <h2 class="modal-title">Invitar amigo</h2>
+      <p class="modal-desc">Envía una invitación por correo electrónico</p>
+      <input type="email" class="modal-input" id="input-invite-email" placeholder="correo@ejemplo.com" />
+      <div class="modal-divider"><span>o comparte el código</span></div>
+      <div class="group-code-display">
+        <span id="modal-group-code">ABC123</span>
+        <button class="btn-copy" id="btn-copy-code">Copiar</button>
+      </div>
+      <button class="btn-primary btn-full" id="btn-confirm-invite">Enviar invitación</button>
+    </div>
+  </div>
+
+  <!-- Modal: Detalle del reto -->
+  <div id="modal-challenge-detail" class="modal-overlay">
+    <div class="modal modal-large">
+      <button class="modal-close">✕</button>
+      <div class="challenge-detail-type outdoor" id="detail-type-badge">🌳 Exterior</div>
+      <h2 class="modal-title" id="detail-title">Carrera de 5km</h2>
+      <p class="modal-desc" id="detail-desc">Descripción detallada del reto...</p>
+
+      <div class="detail-meta-grid">
+        <div class="detail-meta-item">
+          <span class="detail-meta-icon">⏱️</span>
+          <span class="detail-meta-label">Duración</span>
+          <span class="detail-meta-value" id="detail-duration">~45 min</span>
+        </div>
+        <div class="detail-meta-item">
+          <span class="detail-meta-icon">🔥</span>
+          <span class="detail-meta-label">XP</span>
+          <span class="detail-meta-value" id="detail-xp">+150</span>
+        </div>
+        <div class="detail-meta-item">
+          <span class="detail-meta-icon">💪</span>
+          <span class="detail-meta-label">Tipo</span>
+          <span class="detail-meta-value" id="detail-type">Físico</span>
+        </div>
+        <div class="detail-meta-item">
+          <span class="detail-meta-icon">🌡️</span>
+          <span class="detail-meta-label">Dificultad</span>
+          <span class="detail-meta-value" id="detail-difficulty">Moderado</span>
+        </div>
+      </div>
+
+      <!-- Aquí irá el Street View de Google -->
+      <div class="streetview-placeholder" id="streetview-container">
+        <div class="streetview-inner">
+          <span class="sv-icon">📍</span>
+          <p>Vista de Street View del punto de inicio</p>
+          <p class="sv-sub">Google Maps API</p>
+        </div>
+      </div>
+
+      <button class="btn-primary btn-full" id="btn-modal-complete">✅ Reto completado</button>
+    </div>
+  </div>
+
+  <!-- Modal: Notificaciones -->
+  <div id="modal-notifications" class="modal-overlay">
+    <div class="modal">
+      <button class="modal-close">✕</button>
+      <h2 class="modal-title">Notificaciones</h2>
+      <div class="notifications-list" id="notifications-list">
+        <!-- Se rellena por JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Completado (celebración) -->
+  <div id="modal-completed" class="modal-overlay">
+    <div class="modal modal-celebration">
+      <div class="celebration-emoji">🎉</div>
+      <h2 class="modal-title">¡Reto completado!</h2>
+      <p class="modal-desc">Has ganado <strong id="completed-xp">+150 XP</strong></p>
+      <div class="xp-bar-wrap">
+        <div class="xp-bar-fill" id="xp-bar-fill" style="width: 0%"></div>
+      </div>
+      <div class="celebration-coins">
+        <span class="coin-icon">🪙</span>
+        <span>+50 MoveCoins</span>
+      </div>
+      <button class="btn-primary btn-full" id="btn-close-celebration">¡Genial!</button>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="toast" aria-live="polite"></div>
+
+  <script src="js/firebase-config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
