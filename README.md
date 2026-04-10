@@ -21,6 +21,7 @@ La aplicación contemplara una Leaderboard donde se podrá comprobar a tiempo re
 - En el buscador de vuestro móvil poned: http://vuestraIP:vuestropuerto/
 - Buscad y ya deberíais verlo
 
-
+## Para linkear el repo de git con el local
+- En donde quieras crear la carpeta del git, copia esto: git clone https://github.com/nuriaguerra/Impacthon.git
 
 
