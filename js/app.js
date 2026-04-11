@@ -304,7 +304,7 @@ function enterDemoMode() {
   state.userDoc = {
     uid:      'demo-123',
     name:     'Demo User',
-    email:    'demo@moveup.app',
+    email:    'demo@touchgrass.app',
     photoURL: '',
     xp:       2400,
     coins:    320,
