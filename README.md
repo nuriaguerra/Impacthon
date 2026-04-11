@@ -138,7 +138,7 @@ La ubicación se usa para detectar el clima y adaptar el tipo de reto. No se alm
 
 ## Uso de APIs
 
-Toda esta parte se encuentra explicada de manera extensa a continuación: [APIs](https://nuriaguerra.github.io/Impacthon/apis.html)
+Toda esta parte se encuentra explicada de manera extensa a continuación: [APIs](https://nuriaguerra.github.io/Impacthon/TouchGrass_APIs_Explicacion)
 
 ---
 
