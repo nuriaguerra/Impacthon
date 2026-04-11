@@ -512,14 +512,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ── 3. RETO: CORRECCIÓN CRÍTICA AQUÍ ──
-  // Usamos e.stopPropagation para que el click no active nada más en la pantalla
-  document.getElementById('btn-complete-challenge')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    closeModal('modal-challenge-detail');
-    showCelebration(150);
-  });
 
  document.getElementById('btn-modal-complete')?.addEventListener('click', (e) => {
     e.preventDefault();
@@ -583,6 +575,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   
   // ── Renders iniciais ──
+  renderRetoActual();
   renderLeaderboard('leaderboard-mini', 3);
   renderLeaderboard('leaderboard-full');
   renderChallengeHistory();
@@ -590,5 +583,4 @@ document.addEventListener('DOMContentLoaded', () => {
   renderAchievements();
   startPollTimer();
   renderNotifications();
-  renderRetoActual();
 });
