@@ -1,0 +1,435 @@
+/* ═══════════════════════════════════════════════
+   TouchGrass — context.css
+   Estilos para los componentes nuevos:
+   - Banner de clima
+   - Encuesta de energía
+   - Badge "auto" en botones de encuesta
+   - Tarjeta de checkpoint
+   - Botón de directions del mapa
+   - Polish mobile general
+   - Micro-interacciones y animaciones
+   - Challenge card mejorada
+═══════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────
+   BANNER DE CLIMA (inyectado dinámicamente por JS)
+───────────────────────────────────────────── */
+.ctx-weather-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: linear-gradient(90deg,
+    rgba(78, 158, 255, 0.12) 0%,
+    rgba(74, 222, 128, 0.08) 100%);
+  border-bottom: 1px solid rgba(78, 158, 255, 0.2);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  animation: bannerSlideDown 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+
+@keyframes bannerSlideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+
+.ctx-weather-banner.ctx-banner-hide {
+  animation: bannerSlideUp 0.35s ease forwards;
+}
+
+@keyframes bannerSlideUp {
+  to { transform: translateY(-100%); opacity: 0; }
+}
+
+.ctx-banner-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.ctx-banner-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.ctx-banner-body strong {
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 12px;
+}
+
+.ctx-banner-close {
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  font-size: 15px;
+  cursor: pointer;
+  padding: 4px 8px;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  min-width: 32px;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ctx-banner-close:hover { color: var(--text-primary); }
+
+/* ─────────────────────────────────────────────
+   ENCUESTA: BOTONES MEJORADOS
+───────────────────────────────────────────── */
+.poll-options {
+  display: flex;
+  gap: 8px;
+}
+
+.poll-btn {
+  flex: 1;
+  padding: 14px 8px;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+
+/* El emoji dentro del botón */
+.poll-btn .poll-emoji {
+  font-size: 22px;
+  display: block;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.poll-btn .poll-text {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+/* Estados */
+.poll-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.poll-btn:hover .poll-emoji { transform: scale(1.2) rotate(-5deg); }
+
+.poll-btn.selected {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-dim);
+  box-shadow: 0 0 16px rgba(232, 255, 71, 0.2);
+}
+
+.poll-btn.selected .poll-emoji { transform: scale(1.15); }
+
+/* Badge "automático" cuando lo decide el clima */
+.poll-btn.auto-selected::after {
+  content: 'AUTO';
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: var(--accent);
+  color: #0d0d0f;
+  font-size: 8px;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+.poll-btn:active { transform: scale(0.95); }
+
+/* ─────────────────────────────────────────────
+   ENCUESTA DE ENERGÍA (nueva sección en daily-poll)
+───────────────────────────────────────────── */
+.poll-energy-section {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.poll-energy-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+}
+
+.energy-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.energy-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 6px;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-body);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.energy-btn-icon {
+  font-size: 20px;
+  position: relative;
+}
+
+/* Barra de energía dentro del botón */
+.energy-bar-wrap {
+  width: 100%;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.energy-bar {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--text-tertiary);
+  transition: background 0.2s;
+}
+
+.energy-btn-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Estados de energía */
+.energy-btn[data-energy="low"]:hover,
+.energy-btn[data-energy="low"].selected {
+  border-color: var(--green);
+  background: rgba(74, 222, 128, 0.08);
+}
+.energy-btn[data-energy="low"].selected .energy-bar { background: var(--green); }
+.energy-btn[data-energy="low"].selected .energy-btn-label { color: var(--green); }
+
+.energy-btn[data-energy="medium"]:hover,
+.energy-btn[data-energy="medium"].selected {
+  border-color: var(--blue);
+  background: rgba(78, 158, 255, 0.10);
+}
+.energy-btn[data-energy="medium"].selected .energy-bar { background: var(--blue); }
+.energy-btn[data-energy="medium"].selected .energy-btn-label { color: var(--blue); }
+
+.energy-btn[data-energy="high"]:hover,
+.energy-btn[data-energy="high"].selected {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+.energy-btn[data-energy="high"].selected .energy-bar { background: var(--accent); }
+.energy-btn[data-energy="high"].selected .energy-btn-label { color: var(--accent); }
+
+.energy-btn:active { transform: scale(0.95); }
+
+/* ─────────────────────────────────────────────
+   CHALLENGE CARD: mejoras visuales
+───────────────────────────────────────────── */
+
+/* Animación de entrada al cambiar reto */
+.challenge-card.challenge-enter {
+  animation: challengeSwap 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes challengeSwap {
+  0%   { opacity: 0; transform: translateY(10px) scale(0.97); }
+  100% { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+/* Badge indoor (faltaba en styles.css) */
+.challenge-type-badge.indoor {
+  background: var(--blue-dim);
+  color: var(--blue);
+}
+
+.challenge-type-badge.random {
+  background: var(--purple-dim);
+  color: var(--purple);
+}
+
+/* Modal: badge indoor/random */
+.challenge-detail-type.indoor {
+  background: var(--blue-dim);
+  color: var(--blue);
+}
+
+.challenge-detail-type.random {
+  background: var(--purple-dim);
+  color: var(--purple);
+}
+
+/* ─────────────────────────────────────────────
+   BOTÓN DE DIRECTIONS BAJO EL MAPA
+───────────────────────────────────────────── */
+.maps-directions-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  color: var(--accent);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.maps-directions-btn svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.maps-directions-btn:hover { background: var(--bg-card-hover); }
+.maps-directions-btn:active { opacity: 0.8; }
+
+/* ─────────────────────────────────────────────
+   POLISH MÓVIL GENERAL
+───────────────────────────────────────────── */
+
+/* Touch targets mínimos 44px en botones clave */
+.nav-btn         { min-height: 44px; }
+.poll-btn        { min-height: 60px; }
+.energy-btn      { min-height: 70px; }
+.modal-close     { min-width: 44px; min-height: 44px; }
+.btn-ctx-banner  { min-width: 32px; min-height: 32px; }
+
+/* Evitar zoom en inputs iOS (font-size mínimo 16px) */
+.modal-input, .modal-input-code {
+  font-size: 16px !important;
+}
+
+/* Bottom nav: safe area para iPhones con notch */
+.bottom-nav {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
+  height: calc(var(--nav-height) + max(env(safe-area-inset-bottom, 0px), 0px));
+}
+
+/* Scroll suave en iOS */
+.page, .modal {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Page: padding correcto para no quedar bajo la nav */
+.page {
+  padding-bottom: calc(var(--nav-height) + max(env(safe-area-inset-bottom, 0px), 24px));
+}
+
+/* Toast: posición correcta sobre la nav */
+.toast {
+  bottom: calc(var(--nav-height) + max(env(safe-area-inset-bottom, 0px), 12px) + 8px);
+}
+
+/* Modal: padding inferior seguro */
+.modal {
+  padding-bottom: calc(28px + max(env(safe-area-inset-bottom, 0px), 16px));
+}
+
+/* ─────────────────────────────────────────────
+   FEEDBACK TÁCTIL en todos los botones
+───────────────────────────────────────────── */
+.btn-primary,
+.btn-secondary,
+.btn-danger,
+.btn-google,
+.onboarding-card,
+.shop-item,
+.nav-btn,
+.poll-btn,
+.energy-btn {
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.btn-primary:active   { transform: scale(0.97); opacity: 0.9; }
+.btn-secondary:active { transform: scale(0.97); }
+.onboarding-card:active { transform: scale(0.98); }
+.shop-item:active { transform: scale(0.97); }
+
+/* ─────────────────────────────────────────────
+   LEADERBOARD: "yo" con pulso sutil
+───────────────────────────────────────────── */
+.lb-item.me {
+  animation: mePulse 3s ease-in-out infinite;
+}
+
+@keyframes mePulse {
+  0%, 100% { box-shadow: 0 0 0 0   rgba(232, 255, 71, 0.0); }
+  50%       { box-shadow: 0 0 0 4px rgba(232, 255, 71, 0.1); }
+}
+
+/* ─────────────────────────────────────────────
+   NAV CENTER: efecto al pulsar
+───────────────────────────────────────────── */
+.nav-btn-center:active .nav-center-circle {
+  transform: scale(0.9);
+}
+
+/* ─────────────────────────────────────────────
+   TOAST SUCCESS/ERROR: colores
+   (complementa los que ya hay en styles.css)
+───────────────────────────────────────────── */
+.toast.success {
+  border-color: var(--green);
+  color: var(--green);
+}
+
+.toast.error {
+  border-color: var(--coral);
+  color: var(--coral);
+}
+
+/* ─────────────────────────────────────────────
+   SHOP ITEMS: hover mejorado en móvil
+───────────────────────────────────────────── */
+@media (hover: hover) {
+  .shop-item:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+}
+
+/* ─────────────────────────────────────────────
+   PANTALLAS MUY PEQUEÑAS (< 360px)
+───────────────────────────────────────────── */
+@media (max-width: 360px) {
+  .poll-btn    { padding: 10px 4px; }
+  .energy-btn  { padding: 10px 4px; }
+  .energy-btn-label { font-size: 9px; }
+  .challenge-title  { font-size: 20px; }
+  .ctx-banner-body strong { font-size: 11px; }
+}

@@ -16,6 +16,8 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/context.css" />
+  <link rel="stylesheet" href="css/tracker.css" />
 </head>
 <body>
 
@@ -144,34 +146,58 @@
           </div>
           <p class="poll-question">¿Dónde prefieres el reto de hoy?</p>
           <div class="poll-options">
-            <button class="poll-btn" data-vote="indoor">🏠<br/>Interior</button>
-            <button class="poll-btn" data-vote="outdoor">🌳<br/>Exterior</button>
-            <button class="poll-btn" data-vote="random">🎲<br/>Aleatorio</button>
+            <button class="poll-btn" data-vote="indoor">
+              <span class="poll-emoji">🏠</span>
+              <span class="poll-text">Interior</span>
+            </button>
+            <button class="poll-btn" data-vote="outdoor">
+              <span class="poll-emoji">🌳</span>
+              <span class="poll-text">Exterior</span>
+            </button>
+            <button class="poll-btn" data-vote="random">
+              <span class="poll-emoji">🎲</span>
+              <span class="poll-text">Aleatorio</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Encuesta de energía -->
+        <div class="poll-energy-section" id="poll-energy-section" style="display:none">
+          <p class="poll-energy-title">¿Cómo llevas la energía?</p>
+          <div class="energy-btns">
+            <button class="energy-btn" data-energy="low">
+              <span class="energy-btn-icon">🪫</span>
+              <div class="energy-bar-wrap">
+                <div class="energy-bar" style="width:33%"></div>
+              </div>
+              <span class="energy-btn-label">Poca</span>
+            </button>
+            <button class="energy-btn" data-energy="medium">
+              <span class="energy-btn-icon">🔋</span>
+              <div class="energy-bar-wrap">
+                <div class="energy-bar" style="width:66%"></div>
+              </div>
+              <span class="energy-btn-label">Media</span>
+            </button>
+            <button class="energy-btn" data-energy="high">
+              <span class="energy-btn-icon">⚡</span>
+              <div class="energy-bar-wrap">
+                <div class="energy-bar" style="width:100%"></div>
+              </div>
+              <span class="energy-btn-label">Alta</span>
+            </button>
           </div>
         </div>
 
         <!-- Reto del día -->
         <div class="challenge-card" id="challenge-card">
-          <div class="challenge-header">
-            <span class="challenge-type-badge outdoor">🌳 Exterior</span>
-            <span class="challenge-xp">+150 XP</span>
-          </div>
-          <h2 class="challenge-title">Carrera de 5km</h2>
-          <p class="challenge-desc">Completa 5 kilómetros corriendo o caminando rápido. El recorrido es libre, ¡tú decides la ruta!</p>
-
-          <div class="challenge-meta">
-            <span class="meta-item">⏱️ ~45 min</span>
-            <span class="meta-item">💪 Físico</span>
-            <span class="meta-item">🌡️ Moderado</span>
-          </div>
-
-          <div class="challenge-actions">
-            <button class="btn-primary btn-complete" id="btn-complete-challenge">
-              ✅ Marcar completado
-            </button>
-            <button class="btn-secondary btn-details" id="btn-challenge-details">
-              Ver detalles
-            </button>
+          <div class="challenge-placeholder">
+            <span class="challenge-placeholder-icon">🎯</span>
+            <h2 class="challenge-placeholder-title">Tu reto de hoy</h2>
+            <p class="challenge-placeholder-desc">
+              Elige dónde quieres hacer el reto y tu nivel de energía para descubrirlo.
+              Una vez elegido, no podrás cambiarlo.
+            </p>
           </div>
         </div>
 
@@ -368,6 +394,7 @@
           Cerrar sesión
         </button>
       </div>
+      
       <!-- /page-settings -->
 
     </main>
@@ -545,7 +572,17 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 
   <script src="js/firebase-config.js"></script>
-  <script src="js/challenges.js"></script>  
+  <script src="js/challenges.js"></script> 
+  <script src="js/context.js"></script>
+  <script src="js/maps.js"></script>
   <script src="js/app.js"></script>
+
+  <!-- Google Maps SDK — sustituye TU_API_KEY -->
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBJckHQI9m8drzJnteBQ3cVTfOXcTgemVY&callback=MAPS_onLoad&libraries=places&loading=async"
+    async defer>
+  </script>
+
+  
 </body>
 </html>

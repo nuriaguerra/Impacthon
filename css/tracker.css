@@ -1,0 +1,224 @@
+/* ═══════════════════════════════════════════════
+   MOVEUP — tracker.css
+   Estilos para:
+   - Panel del tracker GPS (tipo Strava)
+   - Ruta SVG sobre el mapa
+   - Tarjeta placeholder (antes de elegir tipo)
+   - Badge de reto grupal
+   - Indicador de distancia al checkpoint
+
+   AÑADIR en index.html después de context.css:
+     <link rel="stylesheet" href="css/tracker.css" />
+═══════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────
+   PLACEHOLDER (antes de elegir interior/exterior)
+───────────────────────────────────────────── */
+.challenge-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 36px 24px;
+  text-align: center;
+  min-height: 180px;
+}
+
+.challenge-placeholder-icon {
+  font-size: 48px;
+  animation: placeholderPulse 2s ease-in-out infinite;
+}
+
+@keyframes placeholderPulse {
+  0%, 100% { transform: scale(1);    opacity: 0.7; }
+  50%       { transform: scale(1.08); opacity: 1;   }
+}
+
+.challenge-placeholder-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-secondary);
+}
+
+.challenge-placeholder-desc {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  line-height: 1.6;
+  max-width: 280px;
+}
+
+/* ─────────────────────────────────────────────
+   TRACKER PANEL
+───────────────────────────────────────────── */
+.tracker-panel {
+  background: var(--bg-secondary);
+  border: 1px solid rgba(232, 255, 71, 0.15);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tracker-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tracker-km-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.tracker-km {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+  transition: color 0.3s ease;
+}
+
+.tracker-min {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  font-weight: 600;
+}
+
+.tracker-status {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-height: 16px;
+}
+
+.tracker-dist-cp {
+  font-size: 12px;
+  color: var(--blue);
+  font-weight: 600;
+}
+
+/* Mapa de ruta SVG */
+.tracker-route-svg {
+  width: 100%;
+  height: 120px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  display: block;
+}
+
+/* Botones del tracker */
+.btn-tracker-start,
+.btn-tracker-stop {
+  width: 100%;
+  padding: 13px 20px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-tracker-start {
+  background: var(--accent);
+  color: #0d0d0f;
+}
+
+.btn-tracker-start:hover  { background: var(--accent-hover); transform: translateY(-1px); }
+.btn-tracker-start:active { transform: scale(0.97); }
+
+.btn-tracker-stop {
+  background: var(--coral-dim);
+  color: var(--coral);
+  border: 1px solid var(--coral);
+}
+
+.btn-tracker-stop:hover  { background: rgba(255, 95, 95, 0.25); }
+.btn-tracker-stop:active { transform: scale(0.97); }
+
+/* Tracker activo: animar el número de km */
+.tracker-panel:has(.btn-tracker-stop) .tracker-km {
+  animation: trackerBlink 1.5s ease-in-out infinite;
+}
+
+@keyframes trackerBlink {
+  0%, 100% { opacity: 1;   }
+  50%       { opacity: 0.6; }
+}
+
+/* ─────────────────────────────────────────────
+   BADGE DE RETO GRUPAL
+───────────────────────────────────────────── */
+.challenge-type-badge.group {
+  background: rgba(167, 139, 250, 0.15);
+  color: var(--purple);
+  border: 1px solid rgba(167, 139, 250, 0.3);
+}
+
+.challenge-detail-type.group {
+  background: rgba(167, 139, 250, 0.15);
+  color: var(--purple);
+}
+
+/* Card de reto grupal: borde especial */
+.challenge-card:has(.challenge-type-badge.group) {
+  background: linear-gradient(135deg, #1e1a28 0%, #1a1e28 100%);
+  border-color: rgba(167, 139, 250, 0.25);
+}
+
+/* ─────────────────────────────────────────────
+   RETO COMPLETADO
+───────────────────────────────────────────── */
+.challenge-done-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green);
+  text-align: center;
+  padding: 10px;
+  background: rgba(74, 222, 128, 0.08);
+  border-radius: var(--radius-sm);
+  margin-top: 4px;
+}
+
+/* Botón completado deshabilitado */
+.btn-primary:disabled,
+.btn-complete:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* ─────────────────────────────────────────────
+   STREETVIEW: mejorar placeholder existente
+───────────────────────────────────────────── */
+.streetview-placeholder {
+  background: var(--bg-card);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.streetview-inner {
+  text-align: center;
+  color: var(--text-tertiary);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.sv-icon { font-size: 32px; }
+.sv-sub  { font-size: 11px; color: var(--text-tertiary); }

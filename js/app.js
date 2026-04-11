@@ -1,5 +1,6 @@
 // ═══════════════════════════════════════════════
-//  TOUCHGRASS — app.js
+//  TouchGrass — app.js
+//  Multi-grupo: groupIds (array) en vez de groupId
 // ═══════════════════════════════════════════════
 
 /* ─────────────────────────────────────────────
@@ -187,6 +188,12 @@ auth.onAuthStateChanged(async (user) => {
       closeAllModals();
       showScreen('screen-app');
       navigateTo('home');
+      //Detectar clima y cargar reto
+      if (typeof CTX_init === 'function') CTX_init();
+      if (typeof initChallenges === 'function') initChallenges();
+      // Reto de grupo si toca hoy
+      _checkGroupChallenge();
+
       startNotificationsListener();
     } else {
       updateProfileUI();
@@ -226,6 +233,7 @@ async function loadOrCreateUser(firebaseUser) {
     showToast('¡Bienvenido a TouchGrass! 🌿', 'success');
   } else {
     state.userDoc = snap.data();
+    // Migración: se tiña groupId (singular) convérteo a groupIds
     if (state.userDoc.groupId && !state.userDoc.groupIds) {
       const migrated = { groupIds: [state.userDoc.groupId], groupId: null };
       await userRef.update(migrated);
@@ -394,6 +402,10 @@ async function createGroup(name) {
     showScreen('screen-app');
     navigateTo('groups');
     showToast(`¡Grupo "${name}" creado! 🏆`, 'success');
+    if (typeof CTX_init === 'function'){
+      CTX_init();
+    }
+    if (typeof initChallenges === 'function') initChallenges();
   } catch (err) {
     console.error('Error creando grupo:', err);
     showToast('Error al crear el grupo 😢', 'error');
@@ -420,8 +432,12 @@ async function joinGroup(code) {
     setActiveGroup(joinedGroup);
     closeAllModals();
     showScreen('screen-app');
-    navigateTo('groups');
-    showToast(`¡Unido a "${joinedGroup.name}"! 🤝`, 'success');
+    navigateTo('home');
+    showToast(`¡Unido a "${state.group.name}"! 🤝`, 'success');
+    if (typeof CTX_init === 'function'){
+      CTX_init();
+    }
+    if (typeof initChallenges === 'function') initChallenges();
   } catch (err) {
     console.error('Error uniéndose al grupo:', err);
     showToast('Error al unirse al grupo 😢', 'error');
@@ -806,6 +822,70 @@ function showCelebration(xp = 150, coins = 50) {
   }, 300);
 }
 
+// ── Reto de grupo: comprueba si hoy toca ──
+  function _checkGroupChallenge() {
+    if (!state.group?.id) return;
+    const today = typeof todayString === 'function' ? todayString() : new Date().toISOString().slice(0, 10);
+    if (typeof isGroupChallengeDay !== 'function') return;
+    if (!isGroupChallengeDay(state.group.id, today)) return;
+
+    const groupChallenge = pickGroupChallenge(state.group.id, today);
+    if (!groupChallenge) return;
+
+    // Mostrar toast + card especial solo si no se ha visto hoy
+    const seenKey = `gch_seen_${state.group.id}_${today}`;
+    if (localStorage.getItem(seenKey)) return;
+    localStorage.setItem(seenKey, '1');
+
+    setTimeout(() => {
+      showToast('👥 ¡Reto de grupo disponible hoy! Míralo en Home 🏆', 'success');
+      // Mostrar una segunda card de reto grupal si hay espacio
+      _renderGroupChallengeCard(groupChallenge);
+    }, 1500);
+  }
+
+  function _renderGroupChallengeCard(challenge) {
+    const home = document.getElementById('page-home');
+    if (!home) return;
+    // Evitar duplicados
+    if (home.querySelector('.group-challenge-card')) return;
+
+    const div = document.createElement('div');
+    div.className = 'challenge-card group-challenge-card';
+    div.innerHTML = `
+      <div class="challenge-header">
+        <span class="challenge-type-badge group">👥 Reto de Grupo</span>
+        <span class="challenge-xp">+${challenge.xp} XP</span>
+      </div>
+      <h2 class="challenge-title">${challenge.icon} ${challenge.title}</h2>
+      <p class="challenge-desc">${challenge.desc}</p>
+      <div class="challenge-meta">
+        <span class="meta-item">⏱️ ${challenge.duration}</span>
+        <span class="meta-item">👥 ${challenge.type}</span>
+        <span class="meta-item">🌡️ ${challenge.difficulty}</span>
+      </div>
+      <button class="btn-secondary btn-full" id="btn-group-challenge-details">Ver detalles del reto grupal</button>
+    `;
+
+    // Insertar justo despues de la challenge-card individual
+    const individualCard = document.getElementById('challenge-card');
+    if (individualCard?.parentNode) {
+      individualCard.parentNode.insertBefore(div, individualCard.nextSibling);
+    } else {
+      home.prepend(div);
+    }
+
+    div.querySelector('#btn-group-challenge-details')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (typeof renderChallengeDetailModal === 'function') renderChallengeDetailModal(challenge);
+      if (typeof MAPS_loadForCurrentChallenge === 'function') {
+        window.CTX && (window.CTX.challenge = challenge);
+        MAPS_loadForCurrentChallenge();
+      }
+      if (typeof openModal === 'function') openModal('modal-challenge-detail');
+    });
+  }
+
 /* ─────────────────────────────────────────────
    MAIN — DOMContentLoaded
 ───────────────────────────────────────────── */
@@ -842,7 +922,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (group) setActiveGroup(group);
   });
 
-  // ── Saír do grupo ──
+  // ── Saír do grupo activo ──
   document.getElementById('settings-leave-group')?.addEventListener('click', () => {
     if (!state.activeGroup) return;
     if (confirm(`¿Salir de "${state.activeGroup.name}"?`)) leaveGroup(state.activeGroup.id);
@@ -885,19 +965,76 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // ── Encuesta ──
+  // ── Encuesta — Paso 1: elegir tipo (indoor/outdoor/random) ──
   document.querySelectorAll('.poll-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      if (state.pollVoted) { showToast('Ya votaste hoy', ''); return; }
+      // Bloquear si ya se eligió hoy (y el reto está cargado)
+      if (window.challengeState?.pollChosen && window.challengeState?.todayDate === todayString()) {
+        showToast('Ya elegiste el tipo de reto hoy 💪', '');
+        return;
+      }
       document.querySelectorAll('.poll-btn').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
-      state.pollVoted = true;
-      showToast('Voto registrado ✅', 'success');
+
+      // Si el clima ya decidió automáticamente, usar ese tipo
+      const vote = window.CTX?.autoType || btn.dataset.vote;
+      window.CTX && (window.CTX.pollType = vote);
+
+      // Mostrar la sección de energía
+      const energySection = document.getElementById('poll-energy-section');
+      if (energySection) energySection.style.display = '';
+
+      showToast('Ahora elige tu nivel de energía ⚡', '');
+    });
+  });
+
+  // ── Encuesta — Paso 2: elegir energía -> cargar reto
+  document.querySelectorAll('.energy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (window.challengeState?.pollChosen && window.challengeState?.todayDate === todayString()) {
+        showToast('Ya elegiste la energía hoy 💪', '');
+        return;
+      }
+      document.querySelectorAll('.energy-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+
+      const energy = btn.dataset.energy;
+      window.CTX && (window.CTX.energyLevel = energy);
+
+      // Determinar tipo (automático por clima o manual)
+      const type = window.CTX?.pollType || window.CTX?.autoType || 'outdoor';
+
+      // Obtener userId para el reto determinista por usuario
+      const userId = state.user?.uid || 'guest';
+      const today  = todayString();
+
+      // Seleccionar reto: diferente por usuario, igual para el mismo usuario cada día
+      const challenge = pickChallengeForUser(type, energy, userId, today);
+
+      // Marcar como elegido para no poder cambiar
+      window.challengeState.pollChosen = true;
+      window.challengeState.todayDate  = today;
+      window.challengeState.currentChallenge = challenge;
+      saveChallengeState(window.challengeState);
+
+      // Renderizar reto en la card
+      if (typeof renderChallengeCard === 'function') renderChallengeCard(challenge);
+
+      // Ocultar sección de energía (ya eligió)
+      const energySection = document.getElementById('poll-energy-section');
+      if (energySection) energySection.style.display = 'none';
+
+      const toasts = {
+        low:    '🪫 Reto suave asignado',
+        medium: '🔋 Reto moderado asignado',
+        high:   '⚡ Reto intenso asignado',
+      };
+      showToast(toasts[energy] || '✅ ¡Tu reto está listo!', 'success');
     });
   });
 
   // ── Reto ──
-  document.getElementById('btn-complete-challenge')?.addEventListener('click', (e) => {
+  /* document.getElementById('btn-complete-challenge')?.addEventListener('click', (e) => {
     e.stopPropagation();
     closeModal('modal-challenge-detail');
     completeChallenge(150, 50, 'Carrera de 5km');
@@ -911,8 +1048,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('btn-challenge-details')?.addEventListener('click', (e) => {
     e.stopPropagation();
+    //sincronizar datos del reto actual
+    if (typeof CTX_syncDetailModal === 'function'){
+      CTX_syncDetailModal();
+    }
     openModal('modal-challenge-detail');
-  });
+    //cargar mapa / Street View
+    if (typeof MAPS_loadForCurrentChallenge === 'function'){
+      MAPS_loadForCurrentChallenge();
+    }
+  }); */
 
   // ── Celebración ──
   document.getElementById('btn-close-celebration')?.addEventListener('click', () => {
@@ -937,7 +1082,7 @@ document.addEventListener('DOMContentLoaded', () => {
     overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(overlay.id); });
   });
 
-  // ── Axustes ──
+  // ── Axustes: editar nome ──
   document.getElementById('settings-edit-name')?.addEventListener('click', () => {
     const newName = prompt('Nuevo nombre de usuario:', state.userDoc?.name || '');
     if (newName && newName.trim()) { saveUser({ name: newName.trim() }); showToast('Nombre actualizado ✅', 'success'); }
@@ -948,6 +1093,20 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('chat-input')?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') sendMessage();
   });
+
+  /* document.querySelectorAll('.energy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.energy-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      window.CTX.energyLevel = btn.dataset.energy;
+
+      // Si ya hay tipo seleccionado, regenerar el reto con la nueva energía
+      const type = window.CTX.pollType || window.CTX.autoType || 'outdoor';
+      const ch   = pickChallenge(type, btn.dataset.energy);
+      CTX_renderChallenge(ch);
+      showToast({ low: '🔋 Reto suave activado', medium: '🔋 Reto moderado', high: '⚡ Reto intenso' }[btn.dataset.energy], 'success');
+    });
+  }); */
 
   // ── Renders iniciais ──
   renderShop('powerups');
