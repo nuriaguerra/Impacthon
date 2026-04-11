@@ -1,16 +1,23 @@
 // ═══════════════════════════════════════════════
-//  MOVEUP — Firebase Config
-//  Stubs seguros para modo demo.
-//  Cando teñades credenciais reais, substituír
-//  este ficheiro polo orixinal con firebase.initializeApp()
+//  MOVEUP — Firebase Config (REAL)
 // ═══════════════════════════════════════════════
 
-// auth.onAuthStateChanged nunca dispara en modo stub,
-// así que o fluxo queda en mans do botón demo.
-const auth = {
-  onAuthStateChanged: (_cb) => {},
-  signInWithPopup:    ()    => Promise.reject(new Error('Firebase non configurado')),
-  signOut:            ()    => Promise.resolve(),
+const firebaseConfig = {
+  apiKey:            "AIzaSyAVeCxPBLoT0tKjrmen5BOr1KT59MhM7mw",
+  authDomain:        "hackathon-cca43.firebaseapp.com",
+  projectId:         "hackathon-cca43",
+  storageBucket:     "hackathon-cca43.firebasestorage.app",
+  messagingSenderId: "1020399569915",
+  appId:             "1:1020399569915:web:1c33b744a54cc35e5c995e"
 };
-const db             = null;
-const googleProvider = null;
+
+// Inicializar Firebase
+firebase.initializeApp(firebaseConfig);
+
+// Referencias globais usadas en app.js
+const auth = firebase.auth();
+const db   = firebase.firestore();
+
+// Provider de Google
+const googleProvider = new firebase.auth.GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: 'select_account' });

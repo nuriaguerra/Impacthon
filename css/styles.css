@@ -69,11 +69,13 @@ body {
   pointer-events: none;
   transition: opacity 0.35s ease;
   overflow: hidden;
+  display: none; /* ENGADIR ESTA LIÑA */
 }
 
 .screen.active {
   opacity: 1;
   pointer-events: all;
+  display: flex; /* ENGADIR ESTA LIÑA */
 }
 
 /* ════════════════════════════════════════════════
@@ -1602,3 +1604,13 @@ body {
     height: calc(var(--nav-height) + env(safe-area-inset-bottom));
   }
 }
+
+#screen-splash  { display: none; }
+#screen-auth    { display: none; }
+#screen-onboarding { display: none; }
+#screen-app     { display: none; }
+
+#screen-splash.active  { display: flex; }
+#screen-auth.active    { display: flex; }
+#screen-onboarding.active { display: flex; }
+#screen-app.active     { display: flex; flex-direction: column; }
