@@ -1,7 +1,18 @@
 // ═══════════════════════════════════════════════
-//  MOVEUP — app.js
-//  Multi-grupo: groupIds (array) en vez de groupId
+//  TOUCHGRASS — app.js
 // ═══════════════════════════════════════════════
+
+/* ─────────────────────────────────────────────
+   CONFIGURACIÓN
+───────────────────────────────────────────── */
+const XP_PER_TREE    = 5000;  // XP total do grupo para plantar un árbore
+const XP_REWARDS = [          // Recompensas individuais por XP acumulado
+  { xp:  500, coins: 100, msg: '🌱 ¡Nivel 2! +100 Acorns' },
+  { xp: 1000, coins: 150, msg: '🌿 ¡Nivel 3! +150 Acorns' },
+  { xp: 2000, coins: 200, msg: '🌳 ¡Nivel 5! +200 Acorns' },
+  { xp: 3500, coins: 300, msg: '🏆 ¡Nivel 8! +300 Acorns' },
+  { xp: 5000, coins: 500, msg: '👑 ¡Leyenda! +500 Acorns' },
+];
 
 /* ─────────────────────────────────────────────
    ESTADO GLOBAL
@@ -207,20 +218,21 @@ async function loadOrCreateUser(firebaseUser) {
       streak:              0,
       groupIds:            [],
       completedChallenges: [],
+      claimedRewards:      [],  // IDs dos limiares de XP xa reclamados
       createdAt:           firebase.firestore.FieldValue.serverTimestamp(),
     };
     await userRef.set(newUser);
     state.userDoc = newUser;
-    showToast('¡Bienvenido a MoveUp! 🎉', 'success');
+    showToast('¡Bienvenido a TouchGrass! 🌿', 'success');
   } else {
     state.userDoc = snap.data();
-    // Migración: se tiña groupId (singular) convérteo a groupIds
     if (state.userDoc.groupId && !state.userDoc.groupIds) {
       const migrated = { groupIds: [state.userDoc.groupId], groupId: null };
       await userRef.update(migrated);
       Object.assign(state.userDoc, migrated);
     }
-    if (!state.userDoc.groupIds) state.userDoc.groupIds = [];
+    if (!state.userDoc.groupIds)     state.userDoc.groupIds     = [];
+    if (!state.userDoc.claimedRewards) state.userDoc.claimedRewards = [];
   }
   updateProfileUI();
 }
@@ -234,6 +246,109 @@ async function saveUser(fields) {
   } catch (err) {
     console.error('Error gardando usuario:', err);
   }
+}
+
+/* ─────────────────────────────────────────────
+   RECOMPENSAS POR XP INDIVIDUAL
+───────────────────────────────────────────── */
+async function checkXpRewards(newXp) {
+  const claimed = state.userDoc.claimedRewards || [];
+
+  for (const reward of XP_REWARDS) {
+    const rewardId = `xp_${reward.xp}`;
+    // Se xa superou o limiar e aínda non reclamou esta recompensa
+    if (newXp >= reward.xp && !claimed.includes(rewardId)) {
+      // Marcar como reclamada e dar os coins
+      const newCoins   = (state.userDoc.coins || 0) + reward.coins;
+      const newClaimed = [...claimed, rewardId];
+
+      await db.collection('users').doc(state.user.uid).update({
+        coins:          newCoins,
+        claimedRewards: newClaimed,
+      });
+      Object.assign(state.userDoc, { coins: newCoins, claimedRewards: newClaimed });
+
+      // Mostrar toast de recompensa
+      setTimeout(() => showToast(reward.msg, 'success'), 1500);
+    }
+  }
+}
+
+/* ─────────────────────────────────────────────
+   ÁRBORES DO GRUPO
+───────────────────────────────────────────── */
+
+// Actualiza o XP total do grupo e comproba se hai que plantar árbore
+async function updateGroupTreeProgress(groupId, xpGained) {
+  if (!groupId) return;
+  try {
+    const groupRef  = db.collection('groups').doc(groupId);
+    const groupSnap = await groupRef.get();
+    if (!groupSnap.exists) return;
+
+    const groupData    = groupSnap.data();
+    const prevTotal    = groupData.totalXp     || 0;
+    const prevTrees    = groupData.treesPlanted || 0;
+    const newTotal     = prevTotal + xpGained;
+    const newTrees     = Math.floor(newTotal / XP_PER_TREE);
+    const treesGained  = newTrees - prevTrees;
+
+    await groupRef.update({ totalXp: newTotal, treesPlanted: newTrees });
+
+    // Actualizar estado local do grupo activo
+    if (state.activeGroup && state.activeGroup.id === groupId) {
+      state.activeGroup.totalXp     = newTotal;
+      state.activeGroup.treesPlanted = newTrees;
+      renderTreeProgress();
+    }
+
+    // Notificar a todos os membros se se plantou un árbore novo
+    if (treesGained > 0 && groupData.members) {
+      groupData.members.forEach(uid => {
+        createNotification(
+          uid,
+          'tree',
+          `🌳 ¡El grupo plantó ${treesGained === 1 ? 'un árbol' : `${treesGained} árboles`} nuevo!`
+        );
+      });
+      setTimeout(() => showToast(`🌳 ¡Nuevo árbol plantado por el grupo!`, 'success'), 2000);
+    }
+  } catch (err) {
+    console.error('Error actualizando árbores:', err);
+  }
+}
+
+// Renderiza a barra de progreso de árbores na páxina de grupos
+function renderTreeProgress() {
+  const container = document.getElementById('tree-progress-section');
+  if (!container) return;
+
+  const group    = state.activeGroup;
+  const totalXp  = group?.totalXp     || 0;
+  const trees    = group?.treesPlanted || 0;
+  const xpInCycle = totalXp % XP_PER_TREE;
+  const pct       = Math.round((xpInCycle / XP_PER_TREE) * 100);
+
+  container.innerHTML = `
+    <div class="tree-header">
+      <span class="tree-title">🌍 Impacto medioambiental</span>
+      <span class="tree-count">${trees} 🌳</span>
+    </div>
+    <p class="tree-desc">Por cada ${XP_PER_TREE.toLocaleString()} XP del grupo, plantamos un árbol real</p>
+    <div class="tree-bar-wrap">
+      <div class="tree-bar-fill" style="width: ${pct}%"></div>
+    </div>
+    <div class="tree-bar-labels">
+      <span>${xpInCycle.toLocaleString()} XP</span>
+      <span>${pct}% → próximo árbol</span>
+    </div>
+    ${trees > 0 ? `
+      <div class="tree-planted-row">
+        ${'🌳'.repeat(Math.min(trees, 10))}
+        ${trees > 10 ? `<span class="tree-extra">+${trees - 10} más</span>` : ''}
+      </div>
+    ` : ''}
+  `;
 }
 
 /* ─────────────────────────────────────────────
@@ -253,6 +368,7 @@ function setActiveGroup(group) {
   startLeaderboardListener(group.id);
   startChatListener(group.id);
   renderGroupSelector();
+  renderTreeProgress();
 }
 
 async function createGroup(name) {
@@ -261,15 +377,17 @@ async function createGroup(name) {
   try {
     const groupRef = await db.collection('groups').add({
       name, code,
-      ownerId:   state.user.uid,
-      members:   [state.user.uid],
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      ownerId:      state.user.uid,
+      members:      [state.user.uid],
+      totalXp:      0,
+      treesPlanted: 0,
+      createdAt:    firebase.firestore.FieldValue.serverTimestamp(),
     });
     await db.collection('users').doc(state.user.uid).update({
       groupIds: firebase.firestore.FieldValue.arrayUnion(groupRef.id)
     });
     state.userDoc.groupIds = [...(state.userDoc.groupIds || []), groupRef.id];
-    const newGroup = { id: groupRef.id, name, code, members: [state.user.uid] };
+    const newGroup = { id: groupRef.id, name, code, members: [state.user.uid], totalXp: 0, treesPlanted: 0 };
     state.groups.push(newGroup);
     setActiveGroup(newGroup);
     closeAllModals();
@@ -401,7 +519,6 @@ function startChatListener(groupId) {
   if (unsubscribeChat) { unsubscribeChat(); unsubscribeChat = null; }
   const container = document.getElementById('chat-messages');
   if (!container) return;
-
   unsubscribeChat = db.collection('messages')
     .where('groupId', '==', groupId)
     .orderBy('timestamp', 'asc')
@@ -474,6 +591,16 @@ async function completeChallenge(xp = 150, coins = 50, challengeName = 'Reto del
     });
     Object.assign(state.userDoc, { xp: newXp, coins: newCoins, streak: newStreak });
     updateProfileUI();
+
+    // Comprobar recompensas de XP
+    await checkXpRewards(newXp);
+
+    // Actualizar progreso de árbores en todos os grupos do usuario
+    for (const groupId of (state.userDoc.groupIds || [])) {
+      await updateGroupTreeProgress(groupId, xp);
+    }
+
+    // Notificar aos compañeiros
     if (state.activeGroup?.members) {
       state.activeGroup.members.forEach(uid => {
         if (uid !== state.user.uid) {
@@ -567,7 +694,7 @@ function renderShop(cat = 'powerups') {
       const coins = state.userDoc?.coins || 0;
       const item  = items.find(i => i.id === el.dataset.itemId);
       if (!item) return;
-      if (coins < item.price) { showToast('MoveCoins insuficientes 😢', 'error'); return; }
+      if (coins < item.price) { showToast('Acorns insuficientes 😢', 'error'); return; }
       saveUser({ coins: coins - item.price });
       showToast(`¡${item.name} comprado! ${item.icon}`, 'success');
     });
@@ -666,7 +793,7 @@ function updateGroupUI() {
 function showCelebration(xp = 150, coins = 50) {
   document.getElementById('completed-xp').textContent = `+${xp} XP`;
   const coinsEl = document.querySelector('.celebration-coins span:last-child');
-  if (coinsEl) coinsEl.textContent = `+${coins} MoveCoins`;
+  if (coinsEl) coinsEl.textContent = `+${coins} Acorns`;
   openModal('modal-completed');
   confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 }, colors: ['#e8ff47', '#4ade80', '#4e9eff', '#ff5f5f', '#a78bfa'] });
   setTimeout(() => {
@@ -705,17 +832,17 @@ document.addEventListener('DOMContentLoaded', () => {
     joinGroup(code);
   });
 
-  // ── Botóns de grupo dentro da app ──
+  // ── Botóns de grupo ──
   document.getElementById('btn-add-group')?.addEventListener('click', () => openModal('modal-join-group'));
   document.getElementById('btn-create-new-group')?.addEventListener('click', () => openModal('modal-create-group'));
 
-  // ── Despregable de selección de grupo ──
+  // ── Selector de grupo ──
   document.getElementById('group-selector')?.addEventListener('change', (e) => {
     const group = state.groups.find(g => g.id === e.target.value);
     if (group) setActiveGroup(group);
   });
 
-  // ── Saír do grupo activo ──
+  // ── Saír do grupo ──
   document.getElementById('settings-leave-group')?.addEventListener('click', () => {
     if (!state.activeGroup) return;
     if (confirm(`¿Salir de "${state.activeGroup.name}"?`)) leaveGroup(state.activeGroup.id);
@@ -736,7 +863,7 @@ document.addEventListener('DOMContentLoaded', () => {
     openModal('modal-notifications');
   });
 
-  // ── Invitar membro ──
+  // ── Invitar ──
   document.getElementById('btn-invite-member')?.addEventListener('click', () => {
     updateGroupUI();
     openModal('modal-invite');
@@ -752,7 +879,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-share-code')?.addEventListener('click', () => {
     const code = document.getElementById('modal-group-code').textContent;
     if (navigator.share) {
-      navigator.share({ title: 'MoveUp', text: `¡Únete a mi grupo en MoveUp! Código: ${code}` });
+      navigator.share({ title: 'TouchGrass', text: `¡Únete a mi grupo en TouchGrass! Código: ${code}` });
     } else {
       navigator.clipboard.writeText(code).then(() => showToast('Código copiado 📋', 'success'));
     }
@@ -810,7 +937,7 @@ document.addEventListener('DOMContentLoaded', () => {
     overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(overlay.id); });
   });
 
-  // ── Axustes: editar nome ──
+  // ── Axustes ──
   document.getElementById('settings-edit-name')?.addEventListener('click', () => {
     const newName = prompt('Nuevo nombre de usuario:', state.userDoc?.name || '');
     if (newName && newName.trim()) { saveUser({ name: newName.trim() }); showToast('Nombre actualizado ✅', 'success'); }
