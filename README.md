@@ -36,13 +36,16 @@ TouchGrass es una aplicación móvil de retos diarios físicos y mentales con co
 | Capa | Tecnología |
 |------|-----------|
 | Frontend | HTML5, CSS3, JavaScript |
-| Base de datos | Firebase Firestore |
+| Base de datos | Firebase Firestore (NoSQL) |
 | Autenticación | Firebase Auth (Google) |
-| Hosting | GitHub Pages |
 | Clima | Open-Meteo API (sin API key) |
-| Geocodificación | Nominatim / OpenStreetMap |
-| Mapas | Google Maps JavaScript API + Street View |
+| Geolocalización | Web Geolocation API (`navigator.geolocation`) |
+| Geocodificación | Nominatim (OpenStreetMap) |
+| Mapas | Google Maps JavaScript API  + Street View |
+| Imagen de mapa (fallback) | Google Maps Static API |
+| Búsqueda de lugares | Google Places API |
 | Confeti | canvas-confetti |
+| Hosting | GitHub Pages |
 
 ---
 
