@@ -232,11 +232,24 @@
           <div class="leaderboard-full" id="leaderboard-full"></div>
         </div>
 
+        <div class="section-card chat-section">
+          <h3 class="section-title">💬 Chat del grupo</h3>
+          <div class="chat-messages" id="chat-messages">
+            <p style="text-align:center;color:var(--text-tertiary);font-size:13px;padding:16px">Sin mensajes aún</p>
+          </div>
+          <div class="chat-input-wrap">
+            <input type="text" id="chat-input" class="chat-input" placeholder="Escribe un mensaje..." maxlength="200" />
+            <button id="btn-send-message" class="btn-send">➤</button>
+          </div>
+        </div>
+        
         <details class="section-card section-collapsible">
           <summary class="section-title">📅 Histórico de retos</summary>
           <div class="challenge-history" id="challenge-history"></div>
         </details>
         
+        
+
         <button id="settings-leave-group" style="width:100%; margin-top:8px; padding:14px; background:var(--coral-dim); color:var(--coral); border:1px solid var(--coral); border-radius:var(--radius-md); font-family:var(--font-body); font-size:15px; font-weight:700; cursor:pointer;">
           🚪 Salir del grupo
         </button>

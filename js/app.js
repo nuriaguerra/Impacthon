@@ -9,8 +9,8 @@
 const state = {
   user:                   null,
   userDoc:                null,
-  groups:                 [],    // Array de todos os grupos do usuario
-  activeGroup:            null,  // Grupo seleccionado no despregable
+  groups:                 [],
+  activeGroup:            null,
   currentPage:            'home',
   pollVoted:              false,
   unsubscribeLeaderboard: null,
@@ -128,7 +128,6 @@ function loginWithGoogle() {
   const originalHTML = btn.innerHTML;
   btn.innerHTML = '⏳ Conectando...';
   btn.disabled = true;
-
   auth.signInWithPopup(googleProvider)
     .catch(err => {
       console.error('Login error:', err);
@@ -141,6 +140,7 @@ function loginWithGoogle() {
 function logout() {
   if (state.unsubscribeLeaderboard) { state.unsubscribeLeaderboard(); state.unsubscribeLeaderboard = null; }
   if (state.unsubscribeNotifs)      { state.unsubscribeNotifs();      state.unsubscribeNotifs = null; }
+  if (unsubscribeChat)              { unsubscribeChat();               unsubscribeChat = null; }
   state.authResolved = false;
   auth.signOut().then(() => {
     state.user        = null;
@@ -153,7 +153,6 @@ function logout() {
 }
 
 auth.onAuthStateChanged(async (user) => {
-  // Restaurar botón de login
   const btn = document.getElementById('btn-google-login');
   if (btn) {
     btn.innerHTML = '<svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Continuar con Google';
@@ -172,7 +171,6 @@ auth.onAuthStateChanged(async (user) => {
   try {
     await loadOrCreateUser(user);
     const groupIds = state.userDoc.groupIds || [];
-
     if (groupIds.length > 0) {
       await loadAllGroups(groupIds);
       closeAllModals();
@@ -207,7 +205,7 @@ async function loadOrCreateUser(firebaseUser) {
       xp:                  0,
       coins:               50,
       streak:              0,
-      groupIds:            [],   // Array de IDs de grupos
+      groupIds:            [],
       completedChallenges: [],
       createdAt:           firebase.firestore.FieldValue.serverTimestamp(),
     };
@@ -241,55 +239,39 @@ async function saveUser(fields) {
 /* ─────────────────────────────────────────────
    FIRESTORE: GRUPOS (MULTI)
 ───────────────────────────────────────────── */
-
-// Carga todos os grupos do usuario e activa o primeiro
 async function loadAllGroups(groupIds) {
   const promises = groupIds.map(id => db.collection('groups').doc(id).get());
   const snaps    = await Promise.all(promises);
-
-  state.groups = snaps
-    .filter(s => s.exists)
-    .map(s => ({ id: s.id, ...s.data() }));
-
-  // Activar o primeiro grupo por defecto
-  if (state.groups.length > 0) {
-    setActiveGroup(state.groups[0]);
-  }
-
+  state.groups   = snaps.filter(s => s.exists).map(s => ({ id: s.id, ...s.data() }));
+  if (state.groups.length > 0) setActiveGroup(state.groups[0]);
   renderGroupSelector();
 }
 
-// Cambia o grupo activo e actualiza o leaderboard
 function setActiveGroup(group) {
   state.activeGroup = group;
   updateGroupUI();
   startLeaderboardListener(group.id);
+  startChatListener(group.id);
   renderGroupSelector();
 }
 
-// Crear grupo novo
 async function createGroup(name) {
   if (!state.user) return;
   const code = genGroupCode();
   try {
     const groupRef = await db.collection('groups').add({
-      name,
-      code,
+      name, code,
       ownerId:   state.user.uid,
       members:   [state.user.uid],
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
-
-    // Engadir groupId ao array de grupos do usuario
     await db.collection('users').doc(state.user.uid).update({
       groupIds: firebase.firestore.FieldValue.arrayUnion(groupRef.id)
     });
     state.userDoc.groupIds = [...(state.userDoc.groupIds || []), groupRef.id];
-
     const newGroup = { id: groupRef.id, name, code, members: [state.user.uid] };
     state.groups.push(newGroup);
     setActiveGroup(newGroup);
-
     closeAllModals();
     showScreen('screen-app');
     navigateTo('groups');
@@ -300,34 +282,24 @@ async function createGroup(name) {
   }
 }
 
-// Unirse a grupo por código
 async function joinGroup(code) {
   if (!state.user) return;
   const cleanCode = code.trim().toUpperCase();
   if (cleanCode.length !== 6) { showToast('El código tiene 6 caracteres', 'error'); return; }
-
-  // Comprobar se xa está nese grupo
   const alreadyIn = state.groups.find(g => g.code === cleanCode);
   if (alreadyIn) { showToast('Ya estás en ese grupo', 'error'); return; }
-
   try {
-    const snap = await db.collection('groups')
-      .where('code', '==', cleanCode).limit(1).get();
+    const snap = await db.collection('groups').where('code', '==', cleanCode).limit(1).get();
     if (snap.empty) { showToast('Código no encontrado 🔍', 'error'); return; }
-
     const groupDoc = snap.docs[0];
-    await groupDoc.ref.update({
-      members: firebase.firestore.FieldValue.arrayUnion(state.user.uid)
-    });
+    await groupDoc.ref.update({ members: firebase.firestore.FieldValue.arrayUnion(state.user.uid) });
     await db.collection('users').doc(state.user.uid).update({
       groupIds: firebase.firestore.FieldValue.arrayUnion(groupDoc.id)
     });
     state.userDoc.groupIds = [...(state.userDoc.groupIds || []), groupDoc.id];
-
     const joinedGroup = { id: groupDoc.id, ...groupDoc.data() };
     state.groups.push(joinedGroup);
     setActiveGroup(joinedGroup);
-
     closeAllModals();
     showScreen('screen-app');
     navigateTo('groups');
@@ -338,22 +310,19 @@ async function joinGroup(code) {
   }
 }
 
-// Saír dun grupo concreto
 async function leaveGroup(groupId) {
   if (!state.user) return;
   try {
     if (state.unsubscribeLeaderboard) { state.unsubscribeLeaderboard(); state.unsubscribeLeaderboard = null; }
-
+    if (unsubscribeChat)              { unsubscribeChat();               unsubscribeChat = null; }
     await db.collection('groups').doc(groupId).update({
       members: firebase.firestore.FieldValue.arrayRemove(state.user.uid)
     });
     await db.collection('users').doc(state.user.uid).update({
       groupIds: firebase.firestore.FieldValue.arrayRemove(groupId)
     });
-
     state.userDoc.groupIds = (state.userDoc.groupIds || []).filter(id => id !== groupId);
     state.groups = state.groups.filter(g => g.id !== groupId);
-
     if (state.groups.length > 0) {
       setActiveGroup(state.groups[0]);
       showToast('Saliste del grupo', '');
@@ -373,27 +342,17 @@ async function leaveGroup(groupId) {
 ───────────────────────────────────────────── */
 function startLeaderboardListener(groupId) {
   if (state.unsubscribeLeaderboard) state.unsubscribeLeaderboard();
-
   state.unsubscribeLeaderboard = db.collection('users')
     .where('groupIds', 'array-contains', groupId)
     .onSnapshot((snap) => {
-      const members = snap.docs
-        .map(doc => doc.data())
-        .sort((a, b) => (b.xp || 0) - (a.xp || 0));
-
+      const members = snap.docs.map(doc => doc.data()).sort((a, b) => (b.xp || 0) - (a.xp || 0));
       renderLeaderboard('leaderboard-mini', members, 3);
       renderLeaderboard('leaderboard-full', members, null);
-
-      // Notificar se alguén superou o noso XP
       if (state.userDoc && state.user) {
         const myXp = state.userDoc.xp || 0;
         members.forEach(m => {
           if (m.uid !== state.user.uid && m.xp > myXp) {
-            createNotification(
-              state.user.uid,
-              'superado',
-              `🏆 ${m.name} te ha superado con ${m.xp.toLocaleString()} XP`
-            );
+            createNotification(state.user.uid, 'superado', `🏆 ${m.name} te ha superado con ${m.xp.toLocaleString()} XP`);
           }
         });
       }
@@ -407,16 +366,11 @@ async function createNotification(toUid, type, text) {
   try {
     const today = new Date().toISOString().split('T')[0];
     const existing = await db.collection('notifications')
-      .where('toUid', '==', toUid)
-      .where('type', '==', type)
-      .where('day', '==', today)
-      .limit(1).get();
+      .where('toUid', '==', toUid).where('type', '==', type).where('day', '==', today).limit(1).get();
     if (!existing.empty) return;
-
     await db.collection('notifications').add({
-      toUid, type, text, day: today,
-      unread: true,
-      date:   firebase.firestore.FieldValue.serverTimestamp(),
+      toUid, type, text, day: today, unread: true,
+      date: firebase.firestore.FieldValue.serverTimestamp(),
     });
   } catch (err) {
     console.error('Error creando notificación:', err);
@@ -426,7 +380,6 @@ async function createNotification(toUid, type, text) {
 function startNotificationsListener() {
   if (!state.user) return;
   if (state.unsubscribeNotifs) state.unsubscribeNotifs();
-
   state.unsubscribeNotifs = db.collection('notifications')
     .where('toUid', '==', state.user.uid)
     .orderBy('date', 'desc')
@@ -440,16 +393,80 @@ function startNotificationsListener() {
 }
 
 /* ─────────────────────────────────────────────
+   CHAT
+───────────────────────────────────────────── */
+let unsubscribeChat = null;
+
+function startChatListener(groupId) {
+  if (unsubscribeChat) { unsubscribeChat(); unsubscribeChat = null; }
+  const container = document.getElementById('chat-messages');
+  if (!container) return;
+
+  unsubscribeChat = db.collection('messages')
+    .where('groupId', '==', groupId)
+    .orderBy('timestamp', 'asc')
+    .limit(50)
+    .onSnapshot((snap) => {
+      if (snap.empty) {
+        container.innerHTML = '<p style="text-align:center;color:var(--text-tertiary);font-size:13px;padding:16px">Sin mensajes aún</p>';
+        return;
+      }
+      container.innerHTML = snap.docs.map(doc => {
+        const m    = doc.data();
+        const isMe = m.uid === state.user?.uid;
+        const time = m.timestamp?.toDate
+          ? m.timestamp.toDate().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+          : '';
+        return `
+          <div class="chat-msg ${isMe ? 'me' : 'other'}">
+            ${!isMe ? `<span class="chat-msg-name">${m.name || 'Jugador'}</span>` : ''}
+            <div class="chat-msg-bubble">${escapeHtml(m.text)}</div>
+            <span class="chat-msg-time">${time}</span>
+          </div>
+        `;
+      }).join('');
+      container.scrollTop = container.scrollHeight;
+    }, err => console.error('Error chat:', err));
+}
+
+async function sendMessage() {
+  if (!state.user || !state.activeGroup) return;
+  const input = document.getElementById('chat-input');
+  const text  = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  try {
+    await db.collection('messages').add({
+      groupId:   state.activeGroup.id,
+      uid:       state.user.uid,
+      name:      state.userDoc?.name || 'Jugador',
+      photoURL:  state.userDoc?.photoURL || '',
+      text,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+  } catch (err) {
+    console.error('Error enviando mensaje:', err);
+    showToast('Error al enviar 😢', 'error');
+  }
+}
+
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/* ─────────────────────────────────────────────
    RETO COMPLETADO
 ───────────────────────────────────────────── */
 async function completeChallenge(xp = 150, coins = 50, challengeName = 'Reto del día') {
   if (!state.user || !state.userDoc) return;
-
   const newXp     = (state.userDoc.xp     || 0) + xp;
   const newCoins  = (state.userDoc.coins  || 0) + coins;
   const newStreak = (state.userDoc.streak || 0) + 1;
   const historyEntry = { name: challengeName, xp, date: new Date().toISOString() };
-
   try {
     await db.collection('users').doc(state.user.uid).update({
       xp: newXp, coins: newCoins, streak: newStreak,
@@ -457,8 +474,6 @@ async function completeChallenge(xp = 150, coins = 50, challengeName = 'Reto del
     });
     Object.assign(state.userDoc, { xp: newXp, coins: newCoins, streak: newStreak });
     updateProfileUI();
-
-    // Notificar aos compañeiros do grupo activo
     if (state.activeGroup?.members) {
       state.activeGroup.members.forEach(uid => {
         if (uid !== state.user.uid) {
@@ -469,19 +484,15 @@ async function completeChallenge(xp = 150, coins = 50, challengeName = 'Reto del
   } catch (err) {
     console.error('Error gardando reto:', err);
   }
-
   showCelebration(xp, coins);
 }
 
 /* ─────────────────────────────────────────────
    RENDERS
 ───────────────────────────────────────────── */
-
-// Despregable de selección de grupo na páxina de grupos
 function renderGroupSelector() {
   const selector = document.getElementById('group-selector');
   if (!selector) return;
-
   selector.innerHTML = state.groups.map(g => `
     <option value="${g.id}" ${state.activeGroup?.id === g.id ? 'selected' : ''}>${g.name}</option>
   `).join('');
@@ -490,14 +501,12 @@ function renderGroupSelector() {
 function renderLeaderboard(containerId, members, limit) {
   const container = document.getElementById(containerId);
   if (!container) return;
-  const items = limit ? members.slice(0, limit) : members;
+  const items  = limit ? members.slice(0, limit) : members;
   const medals = ['🥇', '🥈', '🥉'];
-
   if (items.length === 0) {
     container.innerHTML = '<p style="text-align:center;color:var(--text-tertiary);padding:16px">Sin miembros aún</p>';
     return;
   }
-
   container.innerHTML = items.map((p, i) => {
     const isMe = state.user && p.uid === state.user.uid;
     const rankClasses = ['gold', 'silver', 'bronze'];
@@ -548,7 +557,7 @@ function renderShop(cat = 'powerups') {
       <span class="shop-item-icon">${item.icon}</span>
       <span class="shop-item-name">${item.name}</span>
       <div class="shop-item-price">
-        <span class="coin-icon">🌰</span>
+        <span class="coin-icon">🪙</span>
         <span>${item.price}</span>
       </div>
     </div>
@@ -558,7 +567,7 @@ function renderShop(cat = 'powerups') {
       const coins = state.userDoc?.coins || 0;
       const item  = items.find(i => i.id === el.dataset.itemId);
       if (!item) return;
-      if (coins < item.price) { showToast('Acorns insuficientes 😢', 'error'); return; }
+      if (coins < item.price) { showToast('MoveCoins insuficientes 😢', 'error'); return; }
       saveUser({ coins: coins - item.price });
       showToast(`¡${item.name} comprado! ${item.icon}`, 'success');
     });
@@ -577,12 +586,10 @@ function renderNotifications() {
   const container = document.getElementById('notifications-list');
   if (!container) return;
   const notifs = state.notifications || [];
-
   if (notifs.length === 0) {
     container.innerHTML = '<p style="text-align:center;color:var(--text-tertiary);padding:24px 0">Sin notificaciones</p>';
     return;
   }
-
   container.innerHTML = notifs.map(n => `
     <div class="notif-item ${n.unread ? 'unread' : ''}" data-id="${n.id}">
       <span class="notif-icon">${n.text?.split(' ')[0] || '🔔'}</span>
@@ -592,15 +599,11 @@ function renderNotifications() {
       </div>
     </div>
   `).join('');
-
-  // Marcar como lidas ao facer clic
   container.querySelectorAll('.notif-item.unread').forEach(item => {
     item.addEventListener('click', async () => {
       const id = item.dataset.id;
       item.classList.remove('unread');
-      try {
-        await db.collection('notifications').doc(id).update({ unread: false });
-      } catch (err) { console.error(err); }
+      try { await db.collection('notifications').doc(id).update({ unread: false }); } catch (err) { console.error(err); }
       const unreadNow = container.querySelectorAll('.notif-item.unread').length;
       const badge = document.getElementById('notif-badge');
       if (badge) { badge.textContent = unreadNow; badge.style.display = unreadNow > 0 ? 'flex' : 'none'; }
@@ -663,16 +666,13 @@ function updateGroupUI() {
 function showCelebration(xp = 150, coins = 50) {
   document.getElementById('completed-xp').textContent = `+${xp} XP`;
   const coinsEl = document.querySelector('.celebration-coins span:last-child');
-  if (coinsEl) coinsEl.textContent = `+${coins} Acorns`;
+  if (coinsEl) coinsEl.textContent = `+${coins} MoveCoins`;
   openModal('modal-completed');
-
-  // Confeti
   confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 }, colors: ['#e8ff47', '#4ade80', '#4e9eff', '#ff5f5f', '#a78bfa'] });
   setTimeout(() => {
     confetti({ particleCount: 60, spread: 120, origin: { x: 0.2, y: 0.6 }, colors: ['#e8ff47', '#4ade80'] });
     confetti({ particleCount: 60, spread: 120, origin: { x: 0.8, y: 0.6 }, colors: ['#4e9eff', '#a78bfa'] });
   }, 400);
-
   setTimeout(() => {
     const bar = document.getElementById('xp-bar-fill');
     if (bar) { const xpInLevel = (state.userDoc?.xp || 0) % 500; bar.style.width = `${(xpInLevel / 500) * 100}%`; }
@@ -711,8 +711,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── Despregable de selección de grupo ──
   document.getElementById('group-selector')?.addEventListener('change', (e) => {
-    const groupId = e.target.value;
-    const group   = state.groups.find(g => g.id === groupId);
+    const group = state.groups.find(g => g.id === e.target.value);
     if (group) setActiveGroup(group);
   });
 
@@ -817,23 +816,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (newName && newName.trim()) { saveUser({ name: newName.trim() }); showToast('Nombre actualizado ✅', 'success'); }
   });
 
-  // ── Axustes ──
-  document.getElementById('settings-edit-name')?.addEventListener('click', () => {
-    const newName = prompt('Nuevo nombre de usuario:', state.userDoc?.name || '');
-    if (newName && newName.trim()) {
-      saveUser({ name: newName.trim() });
-      showToast('Nombre actualizado ✅', 'success');
-    }
-  });
-
-  document.getElementById('settings-leave-group')?.addEventListener('click', () => {
-    if (confirm('¿Seguro que quieres salir del grupo?')) leaveGroup();
+  // ── Chat ──
+  document.getElementById('btn-send-message')?.addEventListener('click', sendMessage);
+  document.getElementById('chat-input')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') sendMessage();
   });
 
   // ── Renders iniciais ──
   renderShop('powerups');
   renderAchievements();
   startPollTimer();
-  renderNotifications();
-  initChallenges(); 
 });
