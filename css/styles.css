@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════
-   MOVEUP — CSS Principal
+   TouchGrass — CSS Principal
    Estética: Deportivo / Energético / Dark-first
 ════════════════════════════════════════════════ */
 
@@ -12,9 +12,9 @@
   --border: rgba(255,255,255,0.08);
   --border-strong: rgba(255,255,255,0.15);
 
-  --accent: #e8ff47;          /* Lima eléctrico: el color estrella */
+  --accent: #1fce36;
   --accent-dim: rgba(232,255,71,0.15);
-  --accent-hover: #d4f020;
+  --accent-hover: #198f0e;
 
   --blue: #4e9eff;
   --blue-dim: rgba(78,158,255,0.15);
