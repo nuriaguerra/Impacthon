@@ -2,7 +2,7 @@
 
 **Proyecto del Impacthon 2026** — Retos 1 y 4.
 
-TouchGrass es una aplicación móvil de retos diarios físicos y mentales con competición entre amigos. Cada día se genera un reto personalizado según el clima y el nivel de energía del usuario. El grupo compite en un leaderboard en tiempo real y cada 5.000 XP acumulados entre todos los miembros se planta un árbol real.
+TouchGrass es una página web (pensada como aplicación móvil) de retos diarios físicos y mentales con competición entre amigos, para fomentar los hábitos saludables, sociales. Cada día se genera un reto personalizado según el clima del lugar en el que se encuentre el usuario y su nivel de energía. El grupo compite en un leaderboard en tiempo real para obtener la mejor puntuación de XP; cada 5.000 XP acumulados entre todos los miembros se planta un árbol real. De esta forma, se promueve un uso positivo de la tecnología, convirtiéndola en una herramienta para fomentar hábitos saludables en lugar de un uso pasivo o perjudicial.
 
 ---
 
