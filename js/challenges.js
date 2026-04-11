@@ -60,7 +60,7 @@ const CHALLENGES = [
   {
     id: 'journaling',
     name: 'Diario de gratitud',
-    desc: 'Escribe en papel o en el móvil al menos 5 cosas por las que estás agradecido hoy. Sé específico: nada de "mi familia" en general, entra en detalle.',
+    desc: 'Escribe en papel al menos 5 cosas por las que estás agradecido hoy. Sé específico: nada de "mi familia" en general, entra en detalle.',
     xp: 70,
     duration: '~15 min',
     type: 'mental',
@@ -133,17 +133,6 @@ const CHALLENGES = [
     location: 'indoor',
     difficulty: 'medium',
     icon: '🍳',
-  },
-  {
-    id: 'swim',
-    name: '500 m a nado',
-    desc: 'Nada 500 metros en un lago, piscina o en el mar sin parar. Puedes alternar estilos, pero no puedes tocar las paredes para descansar.',
-    xp: 180,
-    duration: '~25 min',
-    type: 'physical',
-    location: 'outdoor',
-    difficulty: 'hard',
-    icon: '🏊',
   },
   {
     id: 'learn_skill',
