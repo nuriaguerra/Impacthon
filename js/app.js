@@ -17,6 +17,22 @@ const state = {
 };
 
 /* ─────────────────────────────────────────────
+   CATÁLOGO DE RETOS
+───────────────────────────────────────────── */
+const RETOS_CATALOGO = [
+  { id: 1, type: 'fisico', title: 'Power Pushups', desc: 'Haz 25 flexiones seguidas.', xp: 150, duration: '5 min', indoor: true },
+  { id: 2, type: 'fisico', title: 'Sprint 40 metros', desc: 'Corre 40 metros a máxima velocidad.', xp: 200, duration: '2 min', indoor: false },
+  { id: 3, type: 'fisico', title: 'Sentadilla Estática', desc: 'Aguanta 1 min en posición de silla contra la pared.', xp: 200, duration: '1 min', indoor: true },
+  { id: 4, type: 'fisico', title: 'Burpees Inferno', desc: 'Realiza 15 burpees lo más rápido posible.', xp: 250, duration: '5 min', indoor: true },
+  { id: 5, type: 'fisico', title: 'Explorador Urbano', desc: 'Camina 8,000 pasos antes de que acabe el día.', xp: 400, duration: 'Varía', indoor: false },
+  { id: 6, type: 'mental', title: 'Enigma del Tiempo', desc: '¿Qué tiene agujas pero no cose? (Respuesta: El reloj).', xp: 100, duration: '1 min', indoor: true },
+  { id: 7, type: 'mental', title: 'Memoria Visual', desc: 'Dibuja el logo de TouchGrass de memoria sin mirar.', xp: 150, duration: '5 min', indoor: true },
+  { id: 8, type: 'mental', title: 'Cálculo Maestro', desc: 'Multiplica 18 x 24 mentalmente sin calculadora.', xp: 120, duration: '2 min', indoor: true },
+  { id: 9, type: 'mental', title: 'Sin Pantallas', desc: 'Pasa 1 hora seguida sin mirar el móvil ni el PC.', xp: 500, duration: '60 min', indoor: true },
+  { id: 10, type: 'mental', title: 'Sudoku Express', desc: 'Completa un Sudoku de nivel medio.', xp: 200, duration: '15 min', indoor: true }
+];
+
+/* ─────────────────────────────────────────────
    DATOS MOCK
 ───────────────────────────────────────────── */
 const MOCK = {
@@ -478,11 +494,23 @@ document.addEventListener('DOMContentLoaded', () => {
     showCelebration(150);
   });
 
-  document.getElementById('btn-modal-complete')?.addEventListener('click', (e) => {
+ document.getElementById('btn-modal-complete')?.addEventListener('click', (e) => {
     e.preventDefault();
-    e.stopPropagation();
-    closeModal('modal-challenge-detail');
-    showCelebration(150);
+    const reto = state.currentChallenge;
+    
+    if (reto) {
+      // 1. Buscamos al usuario "Tú" en el ranking y le sumamos la XP
+      const tu = MOCK.leaderboard.find(u => u.uid === 'me');
+      if (tu) tu.xp += reto.xp;
+
+      // 2. Actualizamos la visualización del ranking
+      renderLeaderboard('leaderboard-mini', MOCK.leaderboard.slice(0, 3));
+      
+      // 3. Cerramos este modal y abrimos la celebración
+      closeModal('modal-challenge-detail');
+      showCelebration(reto.xp);
+      showToast(`¡Completado! +${reto.xp} XP`, 'success');
+    }
   });
 
   document.getElementById('btn-challenge-details')?.addEventListener('click', (e) => {
@@ -521,7 +549,32 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.target === overlay) closeModal(overlay.id);
     });
   });
+  // Función para elegir un reto basado en el día actual (Persona 2)
+  function renderRetoActual() {
+    const hoy = new Date();
+    const diaDelAnio = hoy.getDate() + hoy.getMonth() + hoy.getFullYear();
+    const indice = diaDelAnio % RETOS_CATALOGO.length;
+    const reto = RETOS_CATALOGO[indice];
+    
+    state.currentChallenge = reto; // Guardamos el reto en el estado global
 
+    // Actualizar la tarjeta de la pantalla principal (Home)
+    const homeTitle = document.querySelector('.challenge-card h3');
+    const homeDesc = document.querySelector('.challenge-card p');
+    if (homeTitle) homeTitle.textContent = reto.title;
+    if (homeDesc) homeDesc.textContent = reto.desc;
+
+    // Actualizar el Modal de detalles (cuando haces clic en Ver detalles)
+    const modalTitle = document.getElementById('modal-challenge-title');
+    const modalDesc = document.getElementById('modal-challenge-desc');
+    const modalXP = document.getElementById('modal-challenge-xp');
+    const modalInfo = document.getElementById('modal-challenge-info');
+
+    if (modalTitle) modalTitle.textContent = reto.title;
+    if (modalDesc) modalDesc.textContent = reto.desc;
+    if (modalXP) modalXP.textContent = `+${reto.xp} XP`;
+    if (modalInfo) modalInfo.textContent = `${reto.duration} • ${reto.type.toUpperCase()} • ${reto.indoor ? '🏠 Interior' : '🌳 Exterior'}`;
+  }
   // ── Renders iniciais ──
   renderLeaderboard('leaderboard-mini', 3);
   renderLeaderboard('leaderboard-full');
@@ -530,4 +583,5 @@ document.addEventListener('DOMContentLoaded', () => {
   renderAchievements();
   startPollTimer();
   renderNotifications();
+  renderRetoActual();
 });
