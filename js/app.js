@@ -680,7 +680,7 @@ function showCelebration(xp = 150, coins = 50) {
 }
 
 /* ─────────────────────────────────────────────
-   MAIN
+   MAIN — DOMContentLoaded
 ───────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -817,8 +817,23 @@ document.addEventListener('DOMContentLoaded', () => {
     if (newName && newName.trim()) { saveUser({ name: newName.trim() }); showToast('Nombre actualizado ✅', 'success'); }
   });
 
+  // ── Axustes ──
+  document.getElementById('settings-edit-name')?.addEventListener('click', () => {
+    const newName = prompt('Nuevo nombre de usuario:', state.userDoc?.name || '');
+    if (newName && newName.trim()) {
+      saveUser({ name: newName.trim() });
+      showToast('Nombre actualizado ✅', 'success');
+    }
+  });
+
+  document.getElementById('settings-leave-group')?.addEventListener('click', () => {
+    if (confirm('¿Seguro que quieres salir del grupo?')) leaveGroup();
+  });
+
   // ── Renders iniciais ──
   renderShop('powerups');
   renderAchievements();
   startPollTimer();
+  renderNotifications();
+  initChallenges(); 
 });
