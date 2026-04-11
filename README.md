@@ -1,35 +1,138 @@
-# Impacthon 2026
-Somos completamente novatos en esto, es mas que nada para la experiencia y aprender.
-# AUTORES:
-  - Carolina Silva Rey
-  - Martín García Cebeiro
-  - Nuria Guerra Casal
-  - Iago Leis Fernández
+# TouchGrass
 
-Hemos elegido los retos 1 y 4, planteamos una aplicación de retos tanto físicos como mentales donde el eje principal es competir con tus amigos. 
-La aplicación contemplara una Leaderboard donde se podrá comprobar a tiempo real las posiciones, los jugadores que acaben el dia en las posiciones mas bajas seran penalizados con castigos impuestos mediante una votación por los jugadores que mas alto se encuentren en el ranking
+**Proyecto del Impacthon 2026** — Retos 1 y 4.
 
-## Para ejecutarlo en local:
-- Primero clonar el repo con la estructura de carpetas dada.
-- Abrir una terminal y moverte hasta la carpeta del proyecto
-- Ejecutar: python3 -m http.server 8005  |8005 es un puerto, podeis elegir el que mas os guste
-- Con eso tendreis un enlace para ver la version de ordenador.
+TouchGrass es una aplicación móvil de retos diarios físicos y mentales con competición entre amigos. Cada día se genera un reto personalizado según el clima y el nivel de energía del usuario. El grupo compite en un leaderboard en tiempo real y cada 5.000 XP acumulados entre todos los miembros se planta un árbol real.
 
-- Para usar la geolocalización se copia el enlace y se substituye por http://localhost:8005/
-    ⚠️ No uar http://0.0.0.0:8005/ (por ejemplo), ya que puede causar problemas con algunas APIs del navegador (como la geolocalización).
+---
 
-## Para verlo en el móvil:
-- Con eduroam a mi no me iba asi q poneros los datos del móvil
-- Mirar vuestra ip una vez conectados a los datos con: hostname -I
-- En el buscador de vuestro móvil poned: http://vuestraIP:vuestropuerto/
-- Buscad y ya deberíais verlo
+## Equipo
 
-## Para linkear el repo de git con el local
-- En donde quieras crear la carpeta del git, copia esto: git clone https://github.com/nuriaguerra/Impacthon.git
+| Nombre |
+|--------|
+| Carolina Silva Rey |
+| Martín García Cebeiro | 
+| Nuria Guerra Casal | 
+| Iago Leis Fernández | 
 
-## Google Maps
+---
 
-La aplicación utiliza la geolocalización del navegador para adaptar el contenido (clima y retos) según la posición del usuario. Al abrir la web por primera vez: El navegador solicitará permiso de ubicación y se deberá seleccionar “Permitir”. Si no aparece la solicitud se debe hacer clic en el icono de candado 🔒 o el simbolo de maps en la barra del navegador y permitir ubicación.
+## Características principales
 
-## Pages de github:
-https://nuriaguerra.github.io/Impacthon/
+- **Reto diario personalizado** — Selección según tipo (interior/exterior/aleatorio) y nivel de energía (bajo/medio/alto), adaptado automáticamente al clima del usuario via Open-Meteo
+- **Tracker GPS** — Registro de rutas en tiempo real con contador de kilómetros.
+- **Leaderboard en tiempo real** — Clasificación del grupo sincronizada con Firestore, se actualiza al instante cuando alguien gana XP
+- **Sistema de grupos** — Crear o unirse a grupos mediante código de 6 caracteres; soporte para múltiples grupos por usuario
+- **Chat de grupo** — Mensajería en tiempo real dentro de cada grupo
+- **Impacto medioambiental** — Por cada 5.000 XP acumulados entre todos los miembros del grupo, la empresa se compromete a plantar un árbol real
+- **Recompensas por XP** — Al cruzar ciertos umbrales de XP se reciben Acorns (moneda de la app) automáticamente
+- **Street View** — Los retos exteriores muestran el punto de control en Google Street View
+- **Detección de clima** — Open-Meteo + Nominatim para adaptar el tipo de reto según las condiciones meteorológicas
+
+---
+
+## Tecnologías
+
+| Capa | Tecnología |
+|------|-----------|
+| Frontend | HTML5, CSS3, JavaScript |
+| Base de datos | Firebase Firestore |
+| Autenticación | Firebase Auth (Google) |
+| Hosting | GitHub Pages |
+| Clima | Open-Meteo API (sin API key) |
+| Geocodificación | Nominatim / OpenStreetMap |
+| Mapas | Google Maps JavaScript API + Street View |
+| Confeti | canvas-confetti |
+
+---
+
+## Estructura del proyecto
+
+```
+.
+├── index.html          — HTML principal, todas las pantallas y modales
+├── js/
+│   ├── firebase-config.js  — Credenciales Firebase
+│   ├── app.js              — Lógica principal: auth, grupos, leaderboard, chat
+│   ├── challenges.js       — Base de datos de retos, tracker GPS, selección diaria
+│   ├── context.js          — Detección de clima y geolocalización
+│   └── maps.js             — Google Maps: Street View y directions
+└── css/
+    ├── styles.css          — Estilos principales (tema oscuro)
+    ├── context.css         — Encuesta, energía, banner de clima
+    └── tracker.css         — Panel del tracker GPS, placeholder de reto
+```
+
+---
+## Usar la app
+
+Para probar la app basta con entrar al siguiente link del pages: https://nuriaguerra.github.io/Impacthon/
+
+## Ejecutar en local
+
+```bash
+# Clonar el repositorio
+git clone https://github.com/nuriaguerra/Impacthon.git
+cd Impacthon
+
+# Arrancar el servidor local
+python3 -m http.server 8005
+```
+
+Abrir en el navegador: `http://localhost:8005`
+
+> ⚠️ Usar `localhost` y no `0.0.0.0` — algunas APIs del navegador (geolocalización, Firebase Auth) requieren un origen seguro o reconocido.
+
+---
+
+## Ver en el móvil (red local)
+
+```bash
+# Obtener la IP local
+hostname -I
+```
+
+En el navegador del móvil, conectado a la misma red:
+
+```
+http://<tu-IP>:8005
+```
+
+> Si hay problemas de red, usar los datos móviles del ordenador como hotspot (Eduroam a veces da problemas para este tipo de cosas).
+
+---
+
+## Configuración de Firebase (por si quieres tener la tuya personal)
+
+1. Crear un proyecto en [Firebase Console](https://console.firebase.google.com)
+2. Activar **Authentication → Google**
+3. Activar **Firestore Database** en modo de prueba
+4. Registrar una app web y copiar la configuración en `js/firebase-config.js`
+5. En **Authentication → Configuración → Dominios autorizados**, añadir:
+   - `localhost`
+   - `tuusuario.github.io`
+
+---
+
+## Geolocalización
+
+Al abrir la app por primera vez el navegador solicitará permiso de ubicación. Seleccionar **Permitir**. Si no aparece la solicitud, hacer clic en el icono de candado 🔒 de la barra del navegador y activar la ubicación manualmente.
+
+La ubicación se usa para detectar el clima y adaptar el tipo de reto. No se almacena en ningún servidor.
+
+---
+
+## Colecciones de Firestore
+
+| Colección | Descripción |
+|-----------|-------------|
+| `users` | Perfil, XP, Acorns, racha, grupos y retos completados |
+| `groups` | Nombre, código, miembros, XP total y árboles plantados |
+| `messages` | Mensajes del chat por grupo |
+| `notifications` | Notificaciones en tiempo real (retos, superaciones, árboles) |
+
+---
+
+## GitHub Pages
+
+[https://nuriaguerra.github.io/Impacthon/](https://nuriaguerra.github.io/Impacthon/)
