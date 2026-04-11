@@ -1,8 +1,8 @@
 // ═══════════════════════════════════════════════
 //  TOUCHGRASS — challenges.js
-//  Sistema de retos: 100% local, sen Firebase.
-//  Inclúe: array de retos, selección por data,
-//  completar reto, suma de XP e actualización UI.
+//  Sistema de retos: 100% local, sin Firebase.
+//  Incluye: array de retos, selección por fecha,
+//  completar reto, suma de XP y actualización UI.
 // ═══════════════════════════════════════════════
 
 /* ─────────────────────────────────────────────
@@ -16,7 +16,7 @@ const CHALLENGES = [
   {
     id: 'run5k',
     name: 'Carrera de 5 km',
-    desc: 'Completa 5 kilómetros corriendo ou camiñando rápido. O percorrido é libre, ti decides a ruta. Podes usar calquera app de running para rexistrar a distancia.',
+    desc: 'Completa 5 kilómetros corriendo o caminando rápido. El recorrido es libre, tú decides la ruta. Puedes usar cualquier app de running para registrar la distancia.',
     xp: 150,
     duration: '~45 min',
     type: 'physical',
@@ -27,7 +27,7 @@ const CHALLENGES = [
   {
     id: 'meditation10',
     name: 'Meditación 10 minutos',
-    desc: 'Senta en silencio, pecha os ollos e céntrate na respiración durante 10 minutos seguidos. Sen móbil, sen música. Podes usar un temporizador.',
+    desc: 'Siéntate en silencio, cierra los ojos y céntrate en la respiración durante 10 minutos seguidos. Sin móvil, sin música. Puedes usar un temporizador.',
     xp: 80,
     duration: '~10 min',
     type: 'mental',
@@ -38,7 +38,7 @@ const CHALLENGES = [
   {
     id: 'cold_shower',
     name: 'Ducha fría completa',
-    desc: 'Termina a túa ducha con polo menos 2 minutos de auga completamente fría. Empeza pola nuca e baixa ata os pés. Nada de trampa.',
+    desc: 'Termina tu ducha con al menos 2 minutos de agua completamente fría. Empieza por la nuca y baja hasta los pies. Nada de trampas.',
     xp: 120,
     duration: '~5 min',
     type: 'physical',
@@ -49,7 +49,7 @@ const CHALLENGES = [
   {
     id: 'pushups50',
     name: '50 flexiones',
-    desc: 'Fai 50 flexiones nun mesmo día. Podes distribuílas en series como queiras, pero ten que ser o mesmo día. Conta cada unha en voz alta.',
+    desc: 'Haz 50 flexiones en un mismo día. Puedes distribuirlas en series como quieras, pero tiene que ser el mismo día. Cuenta cada una en voz alta.',
     xp: 100,
     duration: '~20 min',
     type: 'physical',
@@ -60,7 +60,7 @@ const CHALLENGES = [
   {
     id: 'journaling',
     name: 'Diario de gratitud',
-    desc: 'Escribe nun papel ou no móbil polo menos 5 cousas polas que estás agradecido hoxe. Sé específico: nada de "a miña familia" en xeral, entra en detalle.',
+    desc: 'Escribe en papel o en el móvil al menos 5 cosas por las que estás agradecido hoy. Sé específico: nada de "mi familia" en general, entra en detalle.',
     xp: 70,
     duration: '~15 min',
     type: 'mental',
@@ -71,7 +71,7 @@ const CHALLENGES = [
   {
     id: 'hike',
     name: 'Ruta de senderismo',
-    desc: 'Fai unha ruta de senderismo de polo menos 5 km. Pode ser un monte, un parque forestal ou un camiño rural. Fai unha foto no punto máis alto ou bonito.',
+    desc: 'Haz una ruta de senderismo de al menos 5 km. Puede ser un monte, un parque forestal o un camino rural. Saca una foto en el punto más alto o bonito.',
     xp: 200,
     duration: '~2 horas',
     type: 'physical',
@@ -81,10 +81,10 @@ const CHALLENGES = [
   },
   {
     id: 'no_social',
-    name: 'Día sen redes sociais',
-    desc: 'Pasa todo o día sen abrir Instagram, TikTok, Twitter/X nin YouTube. Permitido: mensaxería con amigos e chamadas. Rexistra como te sentes ao final.',
+    name: 'Día sin redes sociales',
+    desc: 'Pasa todo el día sin abrir Instagram, TikTok, Twitter/X ni YouTube. Permitido: mensajería con amigos y llamadas. Anota cómo te sientes al final.',
     xp: 130,
-    duration: 'Todo o día',
+    duration: 'Todo el día',
     type: 'mental',
     location: 'indoor',
     difficulty: 'hard',
@@ -93,7 +93,7 @@ const CHALLENGES = [
   {
     id: 'plank3min',
     name: 'Plancha de 3 minutos',
-    desc: 'Mantén a posición de plancha durante 3 minutos seguidos. Podes facelo en calquera superficie plana. Cronometra e non te rindas!',
+    desc: 'Mantén la posición de plancha durante 3 minutos seguidos. Puedes hacerlo en cualquier superficie plana. ¡Cronometra y no te rindas!',
     xp: 90,
     duration: '~5 min',
     type: 'physical',
@@ -104,7 +104,7 @@ const CHALLENGES = [
   {
     id: 'read30',
     name: 'Lectura 30 minutos',
-    desc: 'Le un libro físico ou ebook durante 30 minutos continuos. Non conta ler artigos curtos nin redes sociais. Cando remates, escribe nunha liña de qué tratar o que leches.',
+    desc: 'Lee un libro físico o ebook durante 30 minutos continuos. No cuenta leer artículos cortos ni redes sociales. Cuando termines, escribe en una línea de qué trataba lo que leíste.',
     xp: 75,
     duration: '~30 min',
     type: 'mental',
@@ -115,7 +115,7 @@ const CHALLENGES = [
   {
     id: 'bike10k',
     name: 'Bicicleta 10 km',
-    desc: 'Pedalea 10 km sen parar (agás semáforos). Pode ser en bici de estrada, de montaña ou mesmo bici estática no ximnasio. Rexistra a ruta.',
+    desc: 'Pedalea 10 km sin parar (excepto semáforos). Puede ser en bici de carretera, de montaña o incluso bici estática en el gimnasio. Registra la ruta.',
     xp: 140,
     duration: '~35 min',
     type: 'physical',
@@ -125,8 +125,8 @@ const CHALLENGES = [
   },
   {
     id: 'new_recipe',
-    name: 'Cocina algo novo',
-    desc: 'Cociña un prato que nunca fixeras antes. Busca a receita, merda os ingredientes e prepáraa desde cero. Fai unha foto do resultado final.',
+    name: 'Cocina algo nuevo',
+    desc: 'Cocina un plato que nunca hayas hecho antes. Busca la receta, compra los ingredientes y prepáralo desde cero. Saca una foto del resultado final.',
     xp: 110,
     duration: '~1 hora',
     type: 'mental',
@@ -137,7 +137,7 @@ const CHALLENGES = [
   {
     id: 'swim',
     name: '500 m a nado',
-    desc: 'Nada 500 metros nun lago, piscina ou no mar sen parar. Podes alternar estilos, pero non podes tocar as paredes para descansar.',
+    desc: 'Nada 500 metros en un lago, piscina o en el mar sin parar. Puedes alternar estilos, pero no puedes tocar las paredes para descansar.',
     xp: 180,
     duration: '~25 min',
     type: 'physical',
@@ -147,8 +147,8 @@ const CHALLENGES = [
   },
   {
     id: 'learn_skill',
-    name: 'Aprende algo novo en 1 hora',
-    desc: 'Dedica 1 hora a aprender algo concreto: un acorde de guitarra, 20 palabras nun idioma novo, un truco de mazo de cartas... O que sexa, pero cunha meta medible.',
+    name: 'Aprende algo nuevo en 1 hora',
+    desc: 'Dedica 1 hora a aprender algo concreto: un acorde de guitarra, 20 palabras en un idioma nuevo, un truco con baraja de cartas... Lo que sea, pero con una meta medible.',
     xp: 100,
     duration: '~1 hora',
     type: 'mental',
@@ -158,8 +158,8 @@ const CHALLENGES = [
   },
   {
     id: 'sunrise',
-    name: 'Levántate co sol',
-    desc: 'Pon o alarmó 10 minutos antes do amencer, saí fóra e observa o sol saír. Sen móbil durante os primeiros 5 minutos. Respira fondo e sé presente.',
+    name: 'Levántate con el sol',
+    desc: 'Pon la alarma 10 minutos antes del amanecer, sal fuera y observa cómo sale el sol. Sin móvil durante los primeros 5 minutos. Respira hondo y sé consciente del momento.',
     xp: 120,
     duration: '~15 min',
     type: 'mental',
@@ -170,7 +170,7 @@ const CHALLENGES = [
   {
     id: 'squat100',
     name: '100 sentadillas',
-    desc: 'Fai 100 sentadillas nun día. Distribúeas en series, pero todas co día. Bota as costas rectas e os xeonllos non pasen das punteiras dos pés.',
+    desc: 'Haz 100 sentadillas en un día. Distribúyelas en series como quieras, pero todas el mismo día. Mantén la espalda recta y las rodillas sin pasar la punta de los pies.',
     xp: 110,
     duration: '~25 min',
     type: 'physical',
@@ -181,9 +181,9 @@ const CHALLENGES = [
 ];
 
 /* ─────────────────────────────────────────────
-   ESTADO LOCAL DOS RETOS
+   ESTADO LOCAL DE LOS RETOS
    (persistido en localStorage para que aguante
-    recargas mentres non hai Firebase)
+    recargas mientras no hay Firebase)
 ───────────────────────────────────────────── */
 const CHALLENGE_STORAGE_KEY = 'tg_challenge_state';
 
@@ -194,8 +194,8 @@ function loadChallengeState() {
   } catch (e) { /* ignora JSON roto */ }
   return {
     completedIds: [],   // ids de retos completados (historial)
-    todayDone: false,   // completouse o reto de hoxe?
-    todayDate: null,    // 'YYYY-MM-DD' do último reto completado
+    todayDone: false,   // ¿se completó el reto de hoy?
+    todayDate: null,    // 'YYYY-MM-DD' del último reto completado
   };
 }
 
