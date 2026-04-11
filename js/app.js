@@ -557,7 +557,7 @@ function renderShop(cat = 'powerups') {
       <span class="shop-item-icon">${item.icon}</span>
       <span class="shop-item-name">${item.name}</span>
       <div class="shop-item-price">
-        <span class="coin-icon">🪙</span>
+        <span class="coin-icon">🌰</span>
         <span>${item.price}</span>
       </div>
     </div>
