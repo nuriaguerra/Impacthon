@@ -526,19 +526,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const reto = state.currentChallenge;
     
     if (reto) {
-      // 1. Buscamos al usuario "Tú" en el ranking y le sumamos la XP
       const tu = MOCK.leaderboard.find(u => u.uid === 'me');
-      if (tu) tu.xp += reto.xp;
+      if (tu) {
+        tu.xp += reto.xp; // Sumamos la XP
+        
+        // ACTUALIZACIÓN DE TODA LA UI
+        renderLeaderboard('leaderboard-mini', 3);
+        renderLeaderboard('leaderboard-full');
+        
+        // Si quieres que también suba el número arriba en el perfil:
+        if(state.userDoc) state.userDoc.xp = tu.xp; 
+        updateProfileUI(); 
+      }
 
-      // 2. Actualizamos la visualización del ranking
-      renderLeaderboard('leaderboard-mini', MOCK.leaderboard.slice(0, 3));
-      
-      // 3. Cerramos este modal y abrimos la celebración
       closeModal('modal-challenge-detail');
       showCelebration(reto.xp);
       showToast(`¡Completado! +${reto.xp} XP`, 'success');
     }
-  });
+});
 
   document.getElementById('btn-challenge-details')?.addEventListener('click', (e) => {
     e.preventDefault();
