@@ -1592,6 +1592,34 @@ body {
 .toast.success { border-color: var(--green); color: var(--green); }
 .toast.error   { border-color: var(--coral); color: var(--coral); }
 
+.group-selector-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.group-selector {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px 36px 10px 14px;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239090a0' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
+.group-selector:focus { border-color: var(--accent); }
+
 /* ════════════════════════════════════════════════
    UTILIDADES
 ════════════════════════════════════════════════ */
@@ -1605,6 +1633,14 @@ body {
   }
 }
 
+@media (max-width: 400px) {
+  .logo-text {
+    font-size: 30px;
+  }
+  .splash-tagline {
+    font-size: 13px;
+  }
+}
 #screen-splash  { display: none; }
 #screen-auth    { display: none; }
 #screen-onboarding { display: none; }
