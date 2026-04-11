@@ -727,6 +727,7 @@ function renderChallengeDetailModal(challenge, done = false) {
   if (btnModal) {
     btnModal.disabled    = done;
     btnModal.textContent = done ? '✅ Ya completado' : '✅ Reto completado';
+    // Limpar listener anterior e engadir novo
     const newBtn = btnModal.cloneNode(true);
     btnModal.parentNode.replaceChild(newBtn, btnModal);
     newBtn.addEventListener('click', (e) => {
