@@ -17,6 +17,7 @@
 
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="stylesheet" href="css/context.css" />
+  <link rel="stylesheet" href="css/tracker.css" />
 </head>
 <body>
 
@@ -27,7 +28,7 @@
     <div class="splash-bg"></div>
     <div class="splash-content">
       <div class="splash-logo">
-        <span class="logo-icon">⚡</span>
+        <span class="logo-icon">🌿</span>
         <h1 class="logo-text">TouchGrass</h1>
       </div>
       <p class="splash-tagline">Muévete. Compite. Vive.</p>
@@ -37,6 +38,7 @@
       <p class="splash-status" id="splash-status" style="font-size:13px;color:var(--text-tertiary);margin-top:16px;">Comprobando sesión...</p>
     </div>
   </div>
+
 
   <!-- ═══════════════════════════════════════════════
        AUTH SCREEN (Login)
@@ -160,8 +162,8 @@
         </div>
 
         <!-- Encuesta de energía -->
-        <div class="poll-energy-section">
-          <p class="poll-energy-title">¿Qué tal tu energía hoy?</p>
+        <div class="poll-energy-section" id="poll-energy-section" style="display:none">
+          <p class="poll-energy-title">¿Cómo llevas la energía?</p>
           <div class="energy-btns">
             <button class="energy-btn" data-energy="low">
               <span class="energy-btn-icon">🪫</span>
@@ -189,26 +191,13 @@
 
         <!-- Reto del día -->
         <div class="challenge-card" id="challenge-card">
-          <div class="challenge-header">
-            <span class="challenge-type-badge outdoor">🌳 Exterior</span>
-            <span class="challenge-xp">+150 XP</span>
-          </div>
-          <h2 class="challenge-title">Carrera de 5km</h2>
-          <p class="challenge-desc">Completa 5 kilómetros corriendo o caminando rápido. El recorrido es libre, ¡tú decides la ruta!</p>
-
-          <div class="challenge-meta">
-            <span class="meta-item">⏱️ ~45 min</span>
-            <span class="meta-item">💪 Físico</span>
-            <span class="meta-item">🌡️ Moderado</span>
-          </div>
-
-          <div class="challenge-actions">
-            <button class="btn-primary btn-complete" id="btn-complete-challenge">
-              ✅ Marcar completado
-            </button>
-            <button class="btn-secondary btn-details" id="btn-challenge-details">
-              Ver detalles
-            </button>
+          <div class="challenge-placeholder">
+            <span class="challenge-placeholder-icon">🎯</span>
+            <h2 class="challenge-placeholder-title">Tu reto de hoy</h2>
+            <p class="challenge-placeholder-desc">
+              Elige dónde quieres hacer el reto y tu nivel de energía para descubrirlo.
+              Una vez elegido, no podrás cambiarlo.
+            </p>
           </div>
         </div>
 
@@ -245,32 +234,55 @@
       <!-- ── PAGE: GRUPOS ── -->
       <div id="page-groups" class="page">
         <div class="page-title-row">
-          <h2 class="page-title">Mi Grupo</h2>
-          <button class="btn-icon" id="btn-invite-member">➕</button>
+          <h2 class="page-title">Grupos</h2>
+          <button class="btn-icon" id="btn-invite-member">📤</button>
+        </div>
+
+        <!-- Selector de grupo -->
+        <div class="group-selector-wrap">
+          <select id="group-selector" class="group-selector"></select>
+          <button class="btn-icon" id="btn-add-group" title="Unirse a otro grupo">➕</button>
+          <button class="btn-icon" id="btn-create-new-group" title="Crear nuevo grupo">🆕</button>
         </div>
 
         <div class="group-info-card" id="group-info-card">
           <div class="group-avatar">🏅</div>
           <div class="group-info">
-            <h3 id="group-name-display">Los Invencibles</h3>
-            <p id="group-code-display">Código: ABC123</p>
+            <h3 id="group-name-display">Mi Grupo</h3>
+            <p id="group-code-display">Código: ------</p>
           </div>
         </div>
 
         <div class="section-card">
-          <h3 class="section-title">🏆 Clasificación general</h3>
-          <div class="leaderboard-full" id="leaderboard-full">
-            <!-- Se rellena por JS -->
-          </div>
+          <h3 class="section-title">🏆 Clasificación</h3>
+          <div class="leaderboard-full" id="leaderboard-full"></div>
         </div>
 
-        <div class="section-card">
-          <h3 class="section-title">📅 Histórico de retos</h3>
-          <div class="challenge-history" id="challenge-history">
-            <!-- Se rellena por JS -->
+        <div class="section-card chat-section">
+          <h3 class="section-title">💬 Chat del grupo</h3>
+          <div class="chat-messages" id="chat-messages">
+            <p style="text-align:center;color:var(--text-tertiary);font-size:13px;padding:16px">Sin mensajes aún</p>
+          </div>
+          <div class="chat-input-wrap">
+            <input type="text" id="chat-input" class="chat-input" placeholder="Escribe un mensaje..." maxlength="200" />
+            <button id="btn-send-message" class="btn-send">➤</button>
           </div>
         </div>
+        
+        <details class="section-card section-collapsible">
+          <summary class="section-title">📅 Histórico de retos</summary>
+          <div class="challenge-history" id="challenge-history"></div>
+        </details>
+        
+        
+
+        <button id="settings-leave-group" style="width:100%; margin-top:8px; padding:14px; background:var(--coral-dim); color:var(--coral); border:1px solid var(--coral); border-radius:var(--radius-md); font-family:var(--font-body); font-size:15px; font-weight:700; cursor:pointer;">
+          🚪 Salir del grupo
+        </button>
       </div>
+
+      
+
       <!-- /page-groups -->
 
       <!-- ── PAGE: TIENDA ── -->
@@ -278,11 +290,11 @@
         <div class="page-title-row">
           <h2 class="page-title">Tienda</h2>
           <div class="coins-display">
-            <span class="coin-icon">🪙</span>
+            <span class="coin-icon">🌰</span>
             <span id="user-coins">320</span>
           </div>
         </div>
-        <p class="page-subtitle">Gasta tus MoveCoins en power-ups y cosméticos</p>
+        <p class="page-subtitle">Gasta tus Acorns en power-ups y cosméticos</p>
 
         <div class="shop-categories">
           <button class="shop-cat active" data-cat="powerups">Power-ups</button>
@@ -326,12 +338,10 @@
           </div>
         </div>
 
-        <div class="section-card">
-          <h3 class="section-title">📋 Retos completados</h3>
-          <div class="completed-challenges" id="completed-challenges">
-            <!-- Se rellena por JS -->
-          </div>
-        </div>
+        <details class="section-card section-collapsible">
+          <summary class="section-title">📋 Retos completados</summary>
+          <div class="completed-challenges" id="completed-challenges"></div>
+        </details>
 
         <div class="section-card">
           <h3 class="section-title">🏅 Logros</h3>
@@ -366,17 +376,6 @@
         </div>
 
         <div class="settings-section">
-          <h3 class="settings-group-title">Grupo</h3>
-          <div class="settings-list">
-            <div class="settings-item" id="settings-leave-group">
-              <span class="settings-icon">🚪</span>
-              <span class="settings-label">Salir del grupo</span>
-              <span class="settings-arrow">›</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="settings-section">
           <h3 class="settings-group-title">Acerca de</h3>
           <div class="settings-list">
             <div class="settings-item">
@@ -390,6 +389,7 @@
           Cerrar sesión
         </button>
       </div>
+      
       <!-- /page-settings -->
 
     </main>
@@ -476,16 +476,16 @@
   <div id="modal-invite" class="modal-overlay">
     <div class="modal">
       <button class="modal-close">✕</button>
-      <div class="modal-icon">✉️</div>
+      <div class="modal-icon">🤝</div>
       <h2 class="modal-title">Invitar amigo</h2>
-      <p class="modal-desc">Envía una invitación por correo electrónico</p>
-      <input type="email" class="modal-input" id="input-invite-email" placeholder="correo@ejemplo.com" />
-      <div class="modal-divider"><span>o comparte el código</span></div>
+      <p class="modal-desc">Comparte este código con tus amigos para que se unan al grupo</p>
       <div class="group-code-display">
         <span id="modal-group-code">ABC123</span>
         <button class="btn-copy" id="btn-copy-code">Copiar</button>
       </div>
-      <button class="btn-primary btn-full" id="btn-confirm-invite">Enviar invitación</button>
+      <button class="btn-primary btn-full" id="btn-share-code">
+        📤 Compartir
+      </button>
     </div>
   </div>
 
@@ -554,8 +554,8 @@
         <div class="xp-bar-fill" id="xp-bar-fill" style="width: 0%"></div>
       </div>
       <div class="celebration-coins">
-        <span class="coin-icon">🪙</span>
-        <span>+50 MoveCoins</span>
+        <span class="coin-icon">🌰</span>
+        <span>+50 Acorns</span>
       </div>
       <button class="btn-primary btn-full" id="btn-close-celebration">¡Genial!</button>
     </div>
@@ -564,15 +564,20 @@
   <!-- TOAST NOTIFICATION -->
   <div id="toast" class="toast" aria-live="polite"></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
   <script src="js/firebase-config.js"></script>
+  <script src="js/challenges.js"></script> 
   <script src="js/context.js"></script>
   <script src="js/maps.js"></script>
+  <script src="js/app.js"></script>
 
   <!-- Google Maps SDK — sustituye TU_API_KEY -->
-  <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBJckHQI9m8drzJnteBQ3cVTfOXcTgemVY&callback=MAPS_onLoad&libraries=places">
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBJckHQI9m8drzJnteBQ3cVTfOXcTgemVY&callback=MAPS_onLoad&libraries=places&loading=async"
+    async defer>
   </script>
 
-  <script src="js/app.js"></script>
+  
 </body>
 </html>

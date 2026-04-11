@@ -237,8 +237,7 @@ function MAPS_loadForCurrentChallenge() {
     container.innerHTML = `
       <div class="streetview-inner">
         <span class="sv-icon">🏠</span>
-        <p>Reto de interior — sin punto de control</p>
-        <p class="sv-sub">Este reto se realiza en casa</p>
+        <p>Sin punto de control</p>
       </div>
     `;
   }
