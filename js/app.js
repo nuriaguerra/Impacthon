@@ -548,7 +548,7 @@ function renderShop(cat = 'powerups') {
       <span class="shop-item-icon">${item.icon}</span>
       <span class="shop-item-name">${item.name}</span>
       <div class="shop-item-price">
-        <span class="coin-icon">🪙</span>
+        <span class="coin-icon">🌰</span>
         <span>${item.price}</span>
       </div>
     </div>
@@ -558,7 +558,7 @@ function renderShop(cat = 'powerups') {
       const coins = state.userDoc?.coins || 0;
       const item  = items.find(i => i.id === el.dataset.itemId);
       if (!item) return;
-      if (coins < item.price) { showToast('MoveCoins insuficientes 😢', 'error'); return; }
+      if (coins < item.price) { showToast('Acorns insuficientes 😢', 'error'); return; }
       saveUser({ coins: coins - item.price });
       showToast(`¡${item.name} comprado! ${item.icon}`, 'success');
     });
@@ -663,7 +663,7 @@ function updateGroupUI() {
 function showCelebration(xp = 150, coins = 50) {
   document.getElementById('completed-xp').textContent = `+${xp} XP`;
   const coinsEl = document.querySelector('.celebration-coins span:last-child');
-  if (coinsEl) coinsEl.textContent = `+${coins} MoveCoins`;
+  if (coinsEl) coinsEl.textContent = `+${coins} Acorns`;
   openModal('modal-completed');
 
   // Confeti
