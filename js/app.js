@@ -157,6 +157,33 @@ function genGroupCode() {
   return Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
 }
 
+// Función para elegir un reto basado en el día actual (Persona 2)
+function renderRetoActual() {
+  const hoy = new Date();
+  const diaDelAnio = hoy.getDate() + hoy.getMonth() + hoy.getFullYear();
+  const indice = diaDelAnio % RETOS_CATALOGO.length;
+  const reto = RETOS_CATALOGO[indice];
+  
+  state.currentChallenge = reto; // Guardamos el reto en el estado global
+
+  // Actualizar la tarjeta de la pantalla principal (Home)
+  const homeTitle = document.querySelector('.challenge-card h3');
+  const homeDesc = document.querySelector('.challenge-card p');
+  if (homeTitle) homeTitle.textContent = reto.title;
+  if (homeDesc) homeDesc.textContent = reto.desc;
+
+  // Actualizar el Modal de detalles (cuando haces clic en Ver detalles)
+  const modalTitle = document.getElementById('modal-challenge-title');
+  const modalDesc = document.getElementById('modal-challenge-desc');
+  const modalXP = document.getElementById('modal-challenge-xp');
+  const modalInfo = document.getElementById('modal-challenge-info');
+
+  if (modalTitle) modalTitle.textContent = reto.title;
+  if (modalDesc) modalDesc.textContent = reto.desc;
+  if (modalXP) modalXP.textContent = `+${reto.xp} XP`;
+  if (modalInfo) modalInfo.textContent = `${reto.duration} • ${reto.type.toUpperCase()} • ${reto.indoor ? '🏠 Interior' : '🌳 Exterior'}`;
+}
+
 /* ─────────────────────────────────────────────
    TIMER: conta atrás ata medianoche
 ───────────────────────────────────────────── */
@@ -549,32 +576,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.target === overlay) closeModal(overlay.id);
     });
   });
-  // Función para elegir un reto basado en el día actual (Persona 2)
-  function renderRetoActual() {
-    const hoy = new Date();
-    const diaDelAnio = hoy.getDate() + hoy.getMonth() + hoy.getFullYear();
-    const indice = diaDelAnio % RETOS_CATALOGO.length;
-    const reto = RETOS_CATALOGO[indice];
-    
-    state.currentChallenge = reto; // Guardamos el reto en el estado global
-
-    // Actualizar la tarjeta de la pantalla principal (Home)
-    const homeTitle = document.querySelector('.challenge-card h3');
-    const homeDesc = document.querySelector('.challenge-card p');
-    if (homeTitle) homeTitle.textContent = reto.title;
-    if (homeDesc) homeDesc.textContent = reto.desc;
-
-    // Actualizar el Modal de detalles (cuando haces clic en Ver detalles)
-    const modalTitle = document.getElementById('modal-challenge-title');
-    const modalDesc = document.getElementById('modal-challenge-desc');
-    const modalXP = document.getElementById('modal-challenge-xp');
-    const modalInfo = document.getElementById('modal-challenge-info');
-
-    if (modalTitle) modalTitle.textContent = reto.title;
-    if (modalDesc) modalDesc.textContent = reto.desc;
-    if (modalXP) modalXP.textContent = `+${reto.xp} XP`;
-    if (modalInfo) modalInfo.textContent = `${reto.duration} • ${reto.type.toUpperCase()} • ${reto.indoor ? '🏠 Interior' : '🌳 Exterior'}`;
-  }
+  
   // ── Renders iniciais ──
   renderLeaderboard('leaderboard-mini', 3);
   renderLeaderboard('leaderboard-full');
