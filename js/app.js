@@ -1,23 +1,22 @@
 // ═══════════════════════════════════════════════
 //  MOVEUP — app.js
-//  Firebase real: Auth Google + Firestore
 // ═══════════════════════════════════════════════
 
 /* ─────────────────────────────────────────────
    ESTADO GLOBAL
 ───────────────────────────────────────────── */
 const state = {
-  user:        null,   // Firebase Auth user
-  userDoc:     null,   // Datos do usuario en Firestore
-  group:       null,   // Datos do grupo en Firestore
-  currentPage: 'home',
-  pollVoted:   false,
-  unsubscribeLeaderboard: null, // Para cancelar listeners de Firestore
+  user:                   null,
+  userDoc:                null,
+  group:                  null,
+  currentPage:            'home',
+  pollVoted:              false,
+  unsubscribeLeaderboard: null,
+  authResolved:           false, // evitar que onAuthStateChanged corra dúas veces
 };
 
 /* ─────────────────────────────────────────────
-   DATOS MOCK (retos, tenda, logros)
-   — a lóxica real de retos farana os compañeiros
+   DATOS MOCK
 ───────────────────────────────────────────── */
 const MOCK = {
   shopItems: {
@@ -99,7 +98,7 @@ function genGroupCode() {
 }
 
 /* ─────────────────────────────────────────────
-   TIMER: conta atrás ata medianoche
+   TIMER
 ───────────────────────────────────────────── */
 function startPollTimer() {
   const el = document.getElementById('poll-timer');
@@ -120,24 +119,27 @@ function startPollTimer() {
 /* ─────────────────────────────────────────────
    FIREBASE AUTH
 ───────────────────────────────────────────── */
-
-// Login con Google
 function loginWithGoogle() {
+  const btn = document.getElementById('btn-google-login');
+  const originalHTML = btn.innerHTML;
+  btn.innerHTML = '⏳ Conectando...';
+  btn.disabled = true;
+
   auth.signInWithPopup(googleProvider)
     .catch(err => {
       console.error('Login error:', err);
       showToast('Error al iniciar sesión 😢', 'error');
+      btn.innerHTML = originalHTML;
+      btn.disabled = false;
     });
-  // O resultado mánexao onAuthStateChanged
 }
 
-// Logout
 function logout() {
-  // Cancelar listener do leaderboard se existe
   if (state.unsubscribeLeaderboard) {
     state.unsubscribeLeaderboard();
     state.unsubscribeLeaderboard = null;
   }
+  state.authResolved = false;
   auth.signOut().then(() => {
     state.user    = null;
     state.userDoc = null;
@@ -147,58 +149,63 @@ function logout() {
   });
 }
 
-// Observer principal — dispara cada vez que cambia o estado de auth
+// onAuthStateChanged: punto de entrada único do fluxo.
+// Usamos authResolved para que só corra unha vez por sesión.
 auth.onAuthStateChanged(async (user) => {
+  // Restaurar botón de login se existe
+  const btn = document.getElementById('btn-google-login');
+  if (btn) { btn.innerHTML = '<svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Continuar con Google'; btn.disabled = false; }
+
   if (!user) {
-    // Non hai sesión → pantalla de login
-    showScreen('screen-auth');
+    // Sen sesión → mostrar auth (só se aínda non resolvemos)
+    if (!state.authResolved) showScreen('screen-auth');
     return;
   }
 
+  // Evitar procesar dúas veces o mesmo usuario
+  if (state.authResolved && state.user?.uid === user.uid) return;
+  state.authResolved = true;
   state.user = user;
 
   try {
     await loadOrCreateUser(user);
 
     if (state.userDoc.groupId) {
-      // Ten grupo → cargar grupo e ir á app
       await loadGroup(state.userDoc.groupId);
       closeAllModals();
       showScreen('screen-app');
       navigateTo('home');
     } else {
-      // Sen grupo → onboarding
       updateProfileUI();
+      closeAllModals();
       showScreen('screen-onboarding');
     }
   } catch (err) {
     console.error('Error cargando usuario:', err);
     showToast('Error de conexión 😢', 'error');
+    showScreen('screen-auth');
   }
 });
 
 /* ─────────────────────────────────────────────
    FIRESTORE: USUARIOS
 ───────────────────────────────────────────── */
-
-// Carga o usuario de Firestore ou créao se é novo
 async function loadOrCreateUser(firebaseUser) {
   const userRef = db.collection('users').doc(firebaseUser.uid);
   const snap    = await userRef.get();
 
   if (!snap.exists) {
-    // Usuario novo: crear documento en Firestore
     const newUser = {
-      uid:       firebaseUser.uid,
-      name:      firebaseUser.displayName || 'Jugador',
-      email:     firebaseUser.email || '',
-      photoURL:  firebaseUser.photoURL || '',
-      xp:        0,
-      coins:     50,   // Coins iniciais de benvida
-      streak:    0,
-      groupId:   null,
+      uid:                 firebaseUser.uid,
+      name:                firebaseUser.displayName || 'Jugador',
+      email:               firebaseUser.email || '',
+      photoURL:            firebaseUser.photoURL || '',
+      xp:                  0,
+      coins:               50,
+      streak:              0,
+      groupId:             null,
       completedChallenges: [],
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      createdAt:           firebase.firestore.FieldValue.serverTimestamp(),
     };
     await userRef.set(newUser);
     state.userDoc = newUser;
@@ -206,16 +213,13 @@ async function loadOrCreateUser(firebaseUser) {
   } else {
     state.userDoc = snap.data();
   }
-
   updateProfileUI();
 }
 
-// Garda cambios do usuario en Firestore
 async function saveUser(fields) {
   if (!state.user) return;
   try {
     await db.collection('users').doc(state.user.uid).update(fields);
-    // Actualizar estado local tamén
     Object.assign(state.userDoc, fields);
     updateProfileUI();
   } catch (err) {
@@ -226,12 +230,9 @@ async function saveUser(fields) {
 /* ─────────────────────────────────────────────
    FIRESTORE: GRUPOS
 ───────────────────────────────────────────── */
-
-// Carga o grupo de Firestore e arranca o listener do leaderboard
 async function loadGroup(groupId) {
   const snap = await db.collection('groups').doc(groupId).get();
   if (!snap.exists) {
-    // O grupo non existe (borrado?), limpar groupId
     await saveUser({ groupId: null });
     showScreen('screen-onboarding');
     return;
@@ -241,13 +242,10 @@ async function loadGroup(groupId) {
   startLeaderboardListener(groupId);
 }
 
-// Crear grupo novo
 async function createGroup(name) {
   if (!state.user) return;
   const code = genGroupCode();
-
   try {
-    // Crear documento do grupo
     const groupRef = await db.collection('groups').add({
       name,
       code,
@@ -255,89 +253,57 @@ async function createGroup(name) {
       members:   [state.user.uid],
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
-
-    // Actualizar usuario co groupId
     await saveUser({ groupId: groupRef.id });
-
     state.group = { id: groupRef.id, name, code, members: [state.user.uid] };
     updateGroupUI();
     startLeaderboardListener(groupRef.id);
-
     closeAllModals();
     showScreen('screen-app');
     navigateTo('home');
     showToast(`¡Grupo "${name}" creado! 🏆`, 'success');
-
   } catch (err) {
     console.error('Error creando grupo:', err);
     showToast('Error al crear el grupo 😢', 'error');
   }
 }
 
-// Unirse a grupo por código
 async function joinGroup(code) {
   if (!state.user) return;
   const cleanCode = code.trim().toUpperCase();
-  if (cleanCode.length !== 6) {
-    showToast('El código tiene 6 caracteres', 'error');
-    return;
-  }
-
+  if (cleanCode.length !== 6) { showToast('El código tiene 6 caracteres', 'error'); return; }
   try {
-    // Buscar grupo polo código
     const snap = await db.collection('groups')
-      .where('code', '==', cleanCode)
-      .limit(1)
-      .get();
-
-    if (snap.empty) {
-      showToast('Código no encontrado 🔍', 'error');
-      return;
-    }
-
+      .where('code', '==', cleanCode).limit(1).get();
+    if (snap.empty) { showToast('Código no encontrado 🔍', 'error'); return; }
     const groupDoc = snap.docs[0];
-
-    // Engadir usuario á lista de membros
     await groupDoc.ref.update({
       members: firebase.firestore.FieldValue.arrayUnion(state.user.uid)
     });
-
-    // Actualizar usuario co groupId
     await saveUser({ groupId: groupDoc.id });
-
     state.group = { id: groupDoc.id, ...groupDoc.data() };
     updateGroupUI();
     startLeaderboardListener(groupDoc.id);
-
     closeAllModals();
     showScreen('screen-app');
     navigateTo('home');
     showToast(`¡Unido a "${state.group.name}"! 🤝`, 'success');
-
   } catch (err) {
     console.error('Error uniéndose al grupo:', err);
     showToast('Error al unirse al grupo 😢', 'error');
   }
 }
 
-// Saír do grupo
 async function leaveGroup() {
   if (!state.user || !state.group) return;
   try {
-    // Cancelar listener
     if (state.unsubscribeLeaderboard) {
       state.unsubscribeLeaderboard();
       state.unsubscribeLeaderboard = null;
     }
-
-    // Eliminar usuario dos membros do grupo
     await db.collection('groups').doc(state.group.id).update({
       members: firebase.firestore.FieldValue.arrayRemove(state.user.uid)
     });
-
-    // Limpar groupId do usuario
     await saveUser({ groupId: null });
-
     state.group = null;
     showScreen('screen-onboarding');
     showToast('Saliste del grupo', '');
@@ -348,24 +314,16 @@ async function leaveGroup() {
 }
 
 /* ─────────────────────────────────────────────
-   FIRESTORE: LEADERBOARD EN TEMPO REAL
-   Escoita cambios en Firestore e actualiza a UI
-   automaticamente cando alguén gana XP
+   LEADERBOARD EN TEMPO REAL
 ───────────────────────────────────────────── */
 function startLeaderboardListener(groupId) {
-  // Cancelar listener anterior se existe
-  if (state.unsubscribeLeaderboard) {
-    state.unsubscribeLeaderboard();
-  }
-
-  // Escoitar en tempo real todos os usuarios do grupo
+  if (state.unsubscribeLeaderboard) state.unsubscribeLeaderboard();
   state.unsubscribeLeaderboard = db.collection('users')
     .where('groupId', '==', groupId)
     .onSnapshot((snap) => {
       const members = snap.docs
         .map(doc => doc.data())
-        .sort((a, b) => (b.xp || 0) - (a.xp || 0)); // Ordenar por XP desc
-
+        .sort((a, b) => (b.xp || 0) - (a.xp || 0));
       renderLeaderboard('leaderboard-mini', members, 3);
       renderLeaderboard('leaderboard-full', members, null);
     }, (err) => {
@@ -374,22 +332,14 @@ function startLeaderboardListener(groupId) {
 }
 
 /* ─────────────────────────────────────────────
-   RETO COMPLETADO — suma XP e coins en Firestore
+   RETO COMPLETADO
 ───────────────────────────────────────────── */
 async function completeChallenge(xp = 150, coins = 50, challengeName = 'Reto del día') {
   if (!state.user || !state.userDoc) return;
-
   const newXp     = (state.userDoc.xp     || 0) + xp;
   const newCoins  = (state.userDoc.coins  || 0) + coins;
   const newStreak = (state.userDoc.streak || 0) + 1;
-
-  // Engadir ao historial de retos completados
-  const historyEntry = {
-    name: challengeName,
-    xp,
-    date: new Date().toISOString(),
-  };
-
+  const historyEntry = { name: challengeName, xp, date: new Date().toISOString() };
   try {
     await db.collection('users').doc(state.user.uid).update({
       xp:     newXp,
@@ -399,38 +349,30 @@ async function completeChallenge(xp = 150, coins = 50, challengeName = 'Reto del
     });
     Object.assign(state.userDoc, { xp: newXp, coins: newCoins, streak: newStreak });
     updateProfileUI();
-    showCelebration(xp, coins);
   } catch (err) {
     console.error('Error gardando reto completado:', err);
-    // Mostrar celebración igualmente para non bloquear a experiencia
-    showCelebration(xp, coins);
   }
+  showCelebration(xp, coins);
 }
 
 /* ─────────────────────────────────────────────
    RENDERS
 ───────────────────────────────────────────── */
-
-// Leaderboard — recibe array de membros de Firestore
 function renderLeaderboard(containerId, members, limit) {
   const container = document.getElementById(containerId);
   if (!container) return;
-
   const items = limit ? members.slice(0, limit) : members;
   const medals = ['🥇', '🥈', '🥉'];
-
   if (items.length === 0) {
     container.innerHTML = '<p style="text-align:center;color:var(--text-tertiary);padding:16px">Sin miembros aún</p>';
     return;
   }
-
   container.innerHTML = items.map((p, i) => {
     const isMe = state.user && p.uid === state.user.uid;
     const rankClasses = ['gold', 'silver', 'bronze'];
     const avatar = p.photoURL
       ? `<img src="${p.photoURL}" style="width:32px;height:32px;border-radius:50%;object-fit:cover" />`
       : `<div class="lb-avatar">${(p.name || '?').charAt(0)}</div>`;
-
     return `
       <div class="lb-item ${isMe ? 'me' : ''}">
         <span class="lb-rank ${rankClasses[i] || ''}">${i < 3 ? medals[i] : i + 1}</span>
@@ -460,7 +402,6 @@ function renderChallengeHistory() {
           </div>
         `;
       }).join('');
-
   const h1 = document.getElementById('challenge-history');
   const h2 = document.getElementById('completed-challenges');
   if (h1) h1.innerHTML = html;
@@ -487,7 +428,6 @@ function renderShop(cat = 'powerups') {
       const item  = items.find(i => i.id === el.dataset.itemId);
       if (!item) return;
       if (coins < item.price) { showToast('MoveCoins insuficientes 😢', 'error'); return; }
-      // Gardar en Firestore
       saveUser({ coins: coins - item.price });
       showToast(`¡${item.name} comprado! ${item.icon}`, 'success');
     });
@@ -505,16 +445,12 @@ function renderStreakDots(streak = 0) {
 function renderNotifications() {
   const container = document.getElementById('notifications-list');
   if (!container) return;
-  // Por agora notificacións estáticas — os compañeiros poden expandir isto
   const notifs = [
     { icon: '🔥', title: 'Racha activa', sub: 'No olvides completar el reto de hoy', unread: true },
   ];
   const badge = document.getElementById('notif-badge');
   const unread = notifs.filter(n => n.unread).length;
-  if (badge) {
-    badge.textContent = unread;
-    badge.style.display = unread > 0 ? 'flex' : 'none';
-  }
+  if (badge) { badge.textContent = unread; badge.style.display = unread > 0 ? 'flex' : 'none'; }
   container.innerHTML = notifs.map(n => `
     <div class="notif-item ${n.unread ? 'unread' : ''}">
       <span class="notif-icon">${n.icon}</span>
@@ -538,7 +474,7 @@ function renderAchievements() {
 }
 
 /* ─────────────────────────────────────────────
-   UI: actualizar perfil e grupo
+   UI
 ───────────────────────────────────────────── */
 function updateProfileUI() {
   if (!state.userDoc) return;
@@ -548,26 +484,20 @@ function updateProfileUI() {
   const coins  = state.userDoc.coins  || 0;
   const streak = state.userDoc.streak || 0;
   const done   = (state.userDoc.completedChallenges || []).length;
-
   const el = (id) => document.getElementById(id);
 
   if (el('onboarding-name'))   el('onboarding-name').textContent   = `¡Hola, ${name.split(' ')[0]}!`;
   if (el('onboarding-avatar')) el('onboarding-avatar').textContent = name.charAt(0).toUpperCase();
   if (el('profile-name'))      el('profile-name').textContent      = name;
   if (el('profile-avatar-img')) {
-    if (photo) {
-      el('profile-avatar-img').src = photo;
-    } else {
-      el('profile-avatar-img').style.display = 'none';
-    }
+    if (photo) { el('profile-avatar-img').src = photo; }
+    else { el('profile-avatar-img').style.display = 'none'; }
   }
-  if (el('stat-xp'))         el('stat-xp').textContent         = xp.toLocaleString();
-  if (el('stat-challenges')) el('stat-challenges').textContent  = done;
-  if (el('stat-streak'))     el('stat-streak').textContent      = streak;
-  if (el('user-coins'))      el('user-coins').textContent       = coins;
-  if (el('streak-count'))    el('streak-count').textContent     = `${streak} días`;
-
-  // Nivel: 1 por cada 500 XP
+  if (el('stat-xp'))         el('stat-xp').textContent        = xp.toLocaleString();
+  if (el('stat-challenges')) el('stat-challenges').textContent = done;
+  if (el('stat-streak'))     el('stat-streak').textContent     = streak;
+  if (el('user-coins'))      el('user-coins').textContent      = coins;
+  if (el('streak-count'))    el('streak-count').textContent    = `${streak} días`;
   const level = Math.floor(xp / 500) + 1;
   if (el('profile-level')) el('profile-level').textContent = `Nv. ${level}`;
 
@@ -584,9 +514,6 @@ function updateGroupUI() {
   if (el('modal-group-code'))   el('modal-group-code').textContent   = state.group.code || '------';
 }
 
-/* ─────────────────────────────────────────────
-   CELEBRACIÓN
-───────────────────────────────────────────── */
 function showCelebration(xp = 150, coins = 50) {
   document.getElementById('completed-xp').textContent = `+${xp} XP`;
   const coinsEl = document.querySelector('.celebration-coins span:last-child');
@@ -595,26 +522,19 @@ function showCelebration(xp = 150, coins = 50) {
   setTimeout(() => {
     const bar = document.getElementById('xp-bar-fill');
     if (bar) {
-      const currentXp = state.userDoc?.xp || 0;
-      const xpInLevel = currentXp % 500;
+      const xpInLevel = (state.userDoc?.xp || 0) % 500;
       bar.style.width = `${(xpInLevel / 500) * 100}%`;
     }
   }, 300);
 }
 
 /* ─────────────────────────────────────────────
-   MAIN
+   MAIN — DOMContentLoaded
 ───────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
 
-  // Asegurar modais pechados ao inicio
   closeAllModals();
-
-  // Mostrar splash 2s e logo auth
-  // (onAuthStateChanged manexa o resto do fluxo)
-  setTimeout(() => {
-    showScreen('screen-auth');
-  }, 2000);
+  // O splash está activo no HTML, onAuthStateChanged decide a seguinte pantalla
 
   // ── Auth ──
   document.getElementById('btn-google-login')?.addEventListener('click', loginWithGoogle);
@@ -682,7 +602,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ── Reto: completar ──
+  // ── Reto ──
   document.getElementById('btn-complete-challenge')?.addEventListener('click', (e) => {
     e.stopPropagation();
     closeModal('modal-challenge-detail');
@@ -695,13 +615,12 @@ document.addEventListener('DOMContentLoaded', () => {
     completeChallenge(150, 50, 'Carrera de 5km');
   });
 
-  // ── Reto: ver detalles ──
   document.getElementById('btn-challenge-details')?.addEventListener('click', (e) => {
     e.stopPropagation();
     openModal('modal-challenge-detail');
   });
 
-  // ── Celebración: pechar ──
+  // ── Celebración ──
   document.getElementById('btn-close-celebration')?.addEventListener('click', () => {
     closeModal('modal-completed');
     setTimeout(() => {
@@ -730,7 +649,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ── Axustes: editar nome ──
+  // ── Axustes ──
   document.getElementById('settings-edit-name')?.addEventListener('click', () => {
     const newName = prompt('Nuevo nombre de usuario:', state.userDoc?.name || '');
     if (newName && newName.trim()) {
@@ -739,7 +658,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // ── Axustes: saír do grupo ──
   document.getElementById('settings-leave-group')?.addEventListener('click', () => {
     if (confirm('¿Seguro que quieres salir del grupo?')) leaveGroup();
   });
