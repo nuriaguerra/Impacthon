@@ -53,7 +53,7 @@ TouchGrass es una aplicación móvil de retos diarios físicos y mentales con co
 
 ```
 .
-├── index.html          — HTML principal, todas las pantallas y modales
+├── index.html          — HTML principal (pantallas, modales y navegación)
 ├── js/
 │   ├── firebase-config.js  — Credenciales Firebase
 │   ├── app.js              — Lógica principal: auth, grupos, leaderboard, chat
@@ -61,8 +61,8 @@ TouchGrass es una aplicación móvil de retos diarios físicos y mentales con co
 │   ├── context.js          — Detección de clima y geolocalización
 │   └── maps.js             — Google Maps: Street View y directions
 └── css/
-    ├── styles.css          — Estilos principales (tema oscuro)
-    ├── context.css         — Encuesta, energía, banner de clima
+    ├── styles.css          — Estilos principales (tema oscuro, tipografías...)
+    ├── context.css         — Botones de encuesta, energía, banner de clima
     └── tracker.css         — Panel del tracker GPS, placeholder de reto
 ```
 
@@ -133,6 +133,12 @@ La ubicación se usa para detectar el clima y adaptar el tipo de reto. No se alm
 | `groups` | Nombre, código, miembros, XP total y árboles plantados |
 | `messages` | Mensajes del chat por grupo |
 | `notifications` | Notificaciones en tiempo real (retos, superaciones, árboles) |
+
+---
+
+## Uso de APIs
+
+Toda esta parte se encuentra explicada de manera extensa a continuación: 
 
 ---
 
