@@ -175,6 +175,10 @@ auth.onAuthStateChanged(async (user) => {
       closeAllModals();
       showScreen('screen-app');
       navigateTo('home');
+      //Detectar clima y cargar reto
+      if (typeof CTX_init === 'function'){
+        CTX_init();
+      }
     } else {
       updateProfileUI();
       closeAllModals();
@@ -261,6 +265,9 @@ async function createGroup(name) {
     showScreen('screen-app');
     navigateTo('home');
     showToast(`¡Grupo "${name}" creado! 🏆`, 'success');
+    if (typeof CTX_init === 'function'){
+      CTX_init();
+    }
   } catch (err) {
     console.error('Error creando grupo:', err);
     showToast('Error al crear el grupo 😢', 'error');
@@ -287,6 +294,9 @@ async function joinGroup(code) {
     showScreen('screen-app');
     navigateTo('home');
     showToast(`¡Unido a "${state.group.name}"! 🤝`, 'success');
+    if (typeof CTX_init === 'function'){
+      CTX_init();
+    }
   } catch (err) {
     console.error('Error uniéndose al grupo:', err);
     showToast('Error al unirse al grupo 😢', 'error');
@@ -592,7 +602,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ── Encuesta ──
-  document.querySelectorAll('.poll-btn').forEach(btn => {
+  /* document.querySelectorAll('.poll-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       if (state.pollVoted) { showToast('Ya votaste hoy', ''); return; }
       document.querySelectorAll('.poll-btn').forEach(b => b.classList.remove('selected'));
@@ -600,7 +610,7 @@ document.addEventListener('DOMContentLoaded', () => {
       state.pollVoted = true;
       showToast('Voto registrado ✅', 'success');
     });
-  });
+  }); */
 
   // ── Reto ──
   document.getElementById('btn-complete-challenge')?.addEventListener('click', (e) => {
@@ -617,8 +627,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('btn-challenge-details')?.addEventListener('click', (e) => {
     e.stopPropagation();
+    //sincronizar datos del reto actual
+    if (typeof CTX_syncDetailModal === 'function'){
+      CTX_syncDetailModal();
+    }
     openModal('modal-challenge-detail');
-  });
+    //cargar mapa / Street View
+    if (typeof MAPS_loadForCurrentChallenge === 'function'){
+      MAPS_loadForCurrentChallenge();
+    }
+    });
 
   // ── Celebración ──
   document.getElementById('btn-close-celebration')?.addEventListener('click', () => {
@@ -660,6 +678,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('settings-leave-group')?.addEventListener('click', () => {
     if (confirm('¿Seguro que quieres salir del grupo?')) leaveGroup();
+  });
+
+  document.querySelectorAll('.energy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.energy-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      window.CTX.energyLevel = btn.dataset.energy;
+
+      // Si ya hay tipo seleccionado, regenerar el reto con la nueva energía
+      const type = window.CTX.pollType || window.CTX.autoType || 'outdoor';
+      const ch   = pickChallenge(type, btn.dataset.energy);
+      CTX_renderChallenge(ch);
+      showToast({ low: '🔋 Reto suave activado', medium: '🔋 Reto moderado', high: '⚡ Reto intenso' }[btn.dataset.energy], 'success');
+    });
   });
 
   // ── Renders iniciais ──
