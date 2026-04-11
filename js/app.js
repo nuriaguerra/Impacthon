@@ -667,4 +667,5 @@ document.addEventListener('DOMContentLoaded', () => {
   renderAchievements();
   startPollTimer();
   renderNotifications();
+  initChallenges(); 
 });
