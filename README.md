@@ -23,5 +23,3 @@ La aplicación contemplara una Leaderboard donde se podrá comprobar a tiempo re
 
 ## Para linkear el repo de git con el local
 - En donde quieras crear la carpeta del git, copia esto: git clone https://github.com/nuriaguerra/Impacthon.git
-
-
