@@ -1,13 +1,12 @@
 // ═══════════════════════════════════════════════
 //  TouchGrass — app.js
-//  Multi-grupo: groupIds (array) en vez de groupId
 // ═══════════════════════════════════════════════
 
 /* ─────────────────────────────────────────────
    CONFIGURACIÓN
 ───────────────────────────────────────────── */
-const XP_PER_TREE    = 5000;  // XP total do grupo para plantar un árbore
-const XP_REWARDS = [          // Recompensas individuais por XP acumulado
+const XP_PER_TREE = 5000;
+const XP_REWARDS = [
   { xp:  500, coins: 100, msg: '🌱 ¡Nivel 2! +100 Acorns' },
   { xp: 1000, coins: 150, msg: '🌿 ¡Nivel 3! +150 Acorns' },
   { xp: 2000, coins: 200, msg: '🌳 ¡Nivel 5! +200 Acorns' },
@@ -39,7 +38,6 @@ const MOCK = {
     powerups: [
       { id: 'xp2x',   name: 'XP x2 (1 día)', icon: '⚡', price: 100 },
       { id: 'shield', name: 'Escudo racha',   icon: '🛡️', price: 150 },
-      { id: 'skip',   name: 'Saltar reto',    icon: '⏭️', price: 200 },
       { id: 'hint',   name: 'Pista extra',    icon: '💡', price:  50 },
     ],
     avatars: [
@@ -188,12 +186,10 @@ auth.onAuthStateChanged(async (user) => {
       closeAllModals();
       showScreen('screen-app');
       navigateTo('home');
-      //Detectar clima y cargar reto
       if (typeof CTX_init === 'function') CTX_init();
       if (typeof initChallenges === 'function') initChallenges();
-      // Reto de grupo si toca hoy
+      // FIX: _checkGroupChallenge está agora a nivel global, pódese chamar sen problema
       _checkGroupChallenge();
-
       startNotificationsListener();
     } else {
       updateProfileUI();
@@ -225,7 +221,7 @@ async function loadOrCreateUser(firebaseUser) {
       streak:              0,
       groupIds:            [],
       completedChallenges: [],
-      claimedRewards:      [],  // IDs dos limiares de XP xa reclamados
+      claimedRewards:      [],
       createdAt:           firebase.firestore.FieldValue.serverTimestamp(),
     };
     await userRef.set(newUser);
@@ -233,13 +229,12 @@ async function loadOrCreateUser(firebaseUser) {
     showToast('¡Bienvenido a TouchGrass! 🌿', 'success');
   } else {
     state.userDoc = snap.data();
-    // Migración: se tiña groupId (singular) convérteo a groupIds
     if (state.userDoc.groupId && !state.userDoc.groupIds) {
       const migrated = { groupIds: [state.userDoc.groupId], groupId: null };
       await userRef.update(migrated);
       Object.assign(state.userDoc, migrated);
     }
-    if (!state.userDoc.groupIds)     state.userDoc.groupIds     = [];
+    if (!state.userDoc.groupIds)       state.userDoc.groupIds       = [];
     if (!state.userDoc.claimedRewards) state.userDoc.claimedRewards = [];
   }
   updateProfileUI();
@@ -257,26 +252,19 @@ async function saveUser(fields) {
 }
 
 /* ─────────────────────────────────────────────
-   RECOMPENSAS POR XP INDIVIDUAL
+   RECOMPENSAS POR XP
 ───────────────────────────────────────────── */
 async function checkXpRewards(newXp) {
   const claimed = state.userDoc.claimedRewards || [];
-
   for (const reward of XP_REWARDS) {
     const rewardId = `xp_${reward.xp}`;
-    // Se xa superou o limiar e aínda non reclamou esta recompensa
     if (newXp >= reward.xp && !claimed.includes(rewardId)) {
-      // Marcar como reclamada e dar os coins
       const newCoins   = (state.userDoc.coins || 0) + reward.coins;
       const newClaimed = [...claimed, rewardId];
-
       await db.collection('users').doc(state.user.uid).update({
-        coins:          newCoins,
-        claimedRewards: newClaimed,
+        coins: newCoins, claimedRewards: newClaimed,
       });
       Object.assign(state.userDoc, { coins: newCoins, claimedRewards: newClaimed });
-
-      // Mostrar toast de recompensa
       setTimeout(() => showToast(reward.msg, 'success'), 1500);
     }
   }
@@ -285,58 +273,45 @@ async function checkXpRewards(newXp) {
 /* ─────────────────────────────────────────────
    ÁRBORES DO GRUPO
 ───────────────────────────────────────────── */
-
-// Actualiza o XP total do grupo e comproba se hai que plantar árbore
 async function updateGroupTreeProgress(groupId, xpGained) {
   if (!groupId) return;
   try {
     const groupRef  = db.collection('groups').doc(groupId);
     const groupSnap = await groupRef.get();
     if (!groupSnap.exists) return;
-
-    const groupData    = groupSnap.data();
-    const prevTotal    = groupData.totalXp     || 0;
-    const prevTrees    = groupData.treesPlanted || 0;
-    const newTotal     = prevTotal + xpGained;
-    const newTrees     = Math.floor(newTotal / XP_PER_TREE);
-    const treesGained  = newTrees - prevTrees;
-
+    const groupData   = groupSnap.data();
+    const prevTotal   = groupData.totalXp     || 0;
+    const prevTrees   = groupData.treesPlanted || 0;
+    const newTotal    = prevTotal + xpGained;
+    const newTrees    = Math.floor(newTotal / XP_PER_TREE);
+    const treesGained = newTrees - prevTrees;
     await groupRef.update({ totalXp: newTotal, treesPlanted: newTrees });
-
-    // Actualizar estado local do grupo activo
     if (state.activeGroup && state.activeGroup.id === groupId) {
-      state.activeGroup.totalXp     = newTotal;
+      state.activeGroup.totalXp      = newTotal;
       state.activeGroup.treesPlanted = newTrees;
       renderTreeProgress();
     }
-
-    // Notificar a todos os membros se se plantou un árbore novo
     if (treesGained > 0 && groupData.members) {
       groupData.members.forEach(uid => {
-        createNotification(
-          uid,
-          'tree',
+        createNotification(uid, 'tree',
           `🌳 ¡El grupo plantó ${treesGained === 1 ? 'un árbol' : `${treesGained} árboles`} nuevo!`
         );
       });
-      setTimeout(() => showToast(`🌳 ¡Nuevo árbol plantado por el grupo!`, 'success'), 2000);
+      setTimeout(() => showToast('🌳 ¡Nuevo árbol plantado por el grupo!', 'success'), 2000);
     }
   } catch (err) {
     console.error('Error actualizando árbores:', err);
   }
 }
 
-// Renderiza a barra de progreso de árbores na páxina de grupos
 function renderTreeProgress() {
   const container = document.getElementById('tree-progress-section');
   if (!container) return;
-
-  const group    = state.activeGroup;
-  const totalXp  = group?.totalXp     || 0;
-  const trees    = group?.treesPlanted || 0;
+  const group     = state.activeGroup;
+  const totalXp   = group?.totalXp     || 0;
+  const trees     = group?.treesPlanted || 0;
   const xpInCycle = totalXp % XP_PER_TREE;
   const pct       = Math.round((xpInCycle / XP_PER_TREE) * 100);
-
   container.innerHTML = `
     <div class="tree-header">
       <span class="tree-title">🌍 Impacto medioambiental</span>
@@ -402,9 +377,7 @@ async function createGroup(name) {
     showScreen('screen-app');
     navigateTo('groups');
     showToast(`¡Grupo "${name}" creado! 🏆`, 'success');
-    if (typeof CTX_init === 'function'){
-      CTX_init();
-    }
+    if (typeof CTX_init === 'function') CTX_init();
     if (typeof initChallenges === 'function') initChallenges();
   } catch (err) {
     console.error('Error creando grupo:', err);
@@ -433,10 +406,9 @@ async function joinGroup(code) {
     closeAllModals();
     showScreen('screen-app');
     navigateTo('home');
-    showToast(`¡Unido a "${state.group.name}"! 🤝`, 'success');
-    if (typeof CTX_init === 'function'){
-      CTX_init();
-    }
+    // FIX: era state.group.name (incorrecto), agora joinedGroup.name
+    showToast(`¡Unido a "${joinedGroup.name}"! 🤝`, 'success');
+    if (typeof CTX_init === 'function') CTX_init();
     if (typeof initChallenges === 'function') initChallenges();
   } catch (err) {
     console.error('Error uniéndose al grupo:', err);
@@ -486,7 +458,9 @@ function startLeaderboardListener(groupId) {
         const myXp = state.userDoc.xp || 0;
         members.forEach(m => {
           if (m.uid !== state.user.uid && m.xp > myXp) {
-            createNotification(state.user.uid, 'superado', `🏆 ${m.name} te ha superado con ${m.xp.toLocaleString()} XP`);
+            createNotification(state.user.uid, 'superado',
+              `🏆 ${m.name} te ha superado con ${m.xp.toLocaleString()} XP`
+            );
           }
         });
       }
@@ -607,16 +581,10 @@ async function completeChallenge(xp = 150, coins = 50, challengeName = 'Reto del
     });
     Object.assign(state.userDoc, { xp: newXp, coins: newCoins, streak: newStreak });
     updateProfileUI();
-
-    // Comprobar recompensas de XP
     await checkXpRewards(newXp);
-
-    // Actualizar progreso de árbores en todos os grupos do usuario
     for (const groupId of (state.userDoc.groupIds || [])) {
       await updateGroupTreeProgress(groupId, xp);
     }
-
-    // Notificar aos compañeiros
     if (state.activeGroup?.members) {
       state.activeGroup.members.forEach(uid => {
         if (uid !== state.user.uid) {
@@ -628,6 +596,73 @@ async function completeChallenge(xp = 150, coins = 50, challengeName = 'Reto del
     console.error('Error gardando reto:', err);
   }
   showCelebration(xp, coins);
+}
+
+/* ─────────────────────────────────────────────
+   RETO DE GRUPO — funcións a nivel global
+   (FIX: antes estaban dentro de DOMContentLoaded
+   e non eran accesibles desde onAuthStateChanged)
+───────────────────────────────────────────── */
+function _checkGroupChallenge() {
+  // Usa activeGroup en vez de state.group (que non existe)
+  if (!state.activeGroup?.id) return;
+  const today = typeof todayString === 'function' ? todayString() : new Date().toISOString().slice(0, 10);
+  if (typeof isGroupChallengeDay !== 'function') return;
+  if (!isGroupChallengeDay(state.activeGroup.id, today)) return;
+
+  const groupChallenge = typeof pickGroupChallenge === 'function'
+    ? pickGroupChallenge(state.activeGroup.id, today)
+    : null;
+  if (!groupChallenge) return;
+
+  const seenKey = `gch_seen_${state.activeGroup.id}_${today}`;
+  if (localStorage.getItem(seenKey)) return;
+  localStorage.setItem(seenKey, '1');
+
+  setTimeout(() => {
+    showToast('👥 ¡Reto de grupo disponible hoy! Míralo en Home 🏆', 'success');
+    _renderGroupChallengeCard(groupChallenge);
+  }, 1500);
+}
+
+function _renderGroupChallengeCard(challenge) {
+  const home = document.getElementById('page-home');
+  if (!home) return;
+  if (home.querySelector('.group-challenge-card')) return;
+
+  const div = document.createElement('div');
+  div.className = 'challenge-card group-challenge-card';
+  div.innerHTML = `
+    <div class="challenge-header">
+      <span class="challenge-type-badge group">👥 Reto de Grupo</span>
+      <span class="challenge-xp">+${challenge.xp} XP</span>
+    </div>
+    <h2 class="challenge-title">${challenge.icon} ${challenge.title}</h2>
+    <p class="challenge-desc">${challenge.desc}</p>
+    <div class="challenge-meta">
+      <span class="meta-item">⏱️ ${challenge.duration}</span>
+      <span class="meta-item">👥 ${challenge.type}</span>
+      <span class="meta-item">🌡️ ${challenge.difficulty}</span>
+    </div>
+    <button class="btn-secondary btn-full" id="btn-group-challenge-details">Ver detalles del reto grupal</button>
+  `;
+
+  const individualCard = document.getElementById('challenge-card');
+  if (individualCard?.parentNode) {
+    individualCard.parentNode.insertBefore(div, individualCard.nextSibling);
+  } else {
+    home.prepend(div);
+  }
+
+  div.querySelector('#btn-group-challenge-details')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (typeof renderChallengeDetailModal === 'function') renderChallengeDetailModal(challenge);
+    if (typeof MAPS_loadForCurrentChallenge === 'function') {
+      window.CTX && (window.CTX.challenge = challenge);
+      MAPS_loadForCurrentChallenge();
+    }
+    openModal('modal-challenge-detail');
+  });
 }
 
 /* ─────────────────────────────────────────────
@@ -725,6 +760,7 @@ function renderStreakDots(streak = 0) {
   ).join('');
 }
 
+// FIX: notificacións agora bórranse de Firestore e desaparecen da UI ao facer clic
 function renderNotifications() {
   const container = document.getElementById('notifications-list');
   if (!container) return;
@@ -742,14 +778,27 @@ function renderNotifications() {
       </div>
     </div>
   `).join('');
-  container.querySelectorAll('.notif-item.unread').forEach(item => {
+
+  container.querySelectorAll('.notif-item').forEach(item => {
     item.addEventListener('click', async () => {
       const id = item.dataset.id;
-      item.classList.remove('unread');
-      try { await db.collection('notifications').doc(id).update({ unread: false }); } catch (err) { console.error(err); }
-      const unreadNow = container.querySelectorAll('.notif-item.unread').length;
-      const badge = document.getElementById('notif-badge');
-      if (badge) { badge.textContent = unreadNow; badge.style.display = unreadNow > 0 ? 'flex' : 'none'; }
+      // Animación de saída
+      item.style.opacity = '0';
+      item.style.transition = 'opacity 0.2s';
+      setTimeout(() => item.remove(), 200);
+      // Borrar de Firestore
+      try {
+        await db.collection('notifications').doc(id).delete();
+      } catch (err) { console.error(err); }
+      // Actualizar badge
+      setTimeout(() => {
+        const unreadNow = container.querySelectorAll('.notif-item.unread').length;
+        const badge = document.getElementById('notif-badge');
+        if (badge) { badge.textContent = unreadNow; badge.style.display = unreadNow > 0 ? 'flex' : 'none'; }
+        if (container.querySelectorAll('.notif-item').length === 0) {
+          container.innerHTML = '<p style="text-align:center;color:var(--text-tertiary);padding:24px 0">Sin notificaciones</p>';
+        }
+      }, 250);
     });
   });
 }
@@ -821,70 +870,6 @@ function showCelebration(xp = 150, coins = 50) {
     if (bar) { const xpInLevel = (state.userDoc?.xp || 0) % 500; bar.style.width = `${(xpInLevel / 500) * 100}%`; }
   }, 300);
 }
-
-// ── Reto de grupo: comprueba si hoy toca ──
-  function _checkGroupChallenge() {
-    if (!state.group?.id) return;
-    const today = typeof todayString === 'function' ? todayString() : new Date().toISOString().slice(0, 10);
-    if (typeof isGroupChallengeDay !== 'function') return;
-    if (!isGroupChallengeDay(state.group.id, today)) return;
-
-    const groupChallenge = pickGroupChallenge(state.group.id, today);
-    if (!groupChallenge) return;
-
-    // Mostrar toast + card especial solo si no se ha visto hoy
-    const seenKey = `gch_seen_${state.group.id}_${today}`;
-    if (localStorage.getItem(seenKey)) return;
-    localStorage.setItem(seenKey, '1');
-
-    setTimeout(() => {
-      showToast('👥 ¡Reto de grupo disponible hoy! Míralo en Home 🏆', 'success');
-      // Mostrar una segunda card de reto grupal si hay espacio
-      _renderGroupChallengeCard(groupChallenge);
-    }, 1500);
-  }
-
-  function _renderGroupChallengeCard(challenge) {
-    const home = document.getElementById('page-home');
-    if (!home) return;
-    // Evitar duplicados
-    if (home.querySelector('.group-challenge-card')) return;
-
-    const div = document.createElement('div');
-    div.className = 'challenge-card group-challenge-card';
-    div.innerHTML = `
-      <div class="challenge-header">
-        <span class="challenge-type-badge group">👥 Reto de Grupo</span>
-        <span class="challenge-xp">+${challenge.xp} XP</span>
-      </div>
-      <h2 class="challenge-title">${challenge.icon} ${challenge.title}</h2>
-      <p class="challenge-desc">${challenge.desc}</p>
-      <div class="challenge-meta">
-        <span class="meta-item">⏱️ ${challenge.duration}</span>
-        <span class="meta-item">👥 ${challenge.type}</span>
-        <span class="meta-item">🌡️ ${challenge.difficulty}</span>
-      </div>
-      <button class="btn-secondary btn-full" id="btn-group-challenge-details">Ver detalles del reto grupal</button>
-    `;
-
-    // Insertar justo despues de la challenge-card individual
-    const individualCard = document.getElementById('challenge-card');
-    if (individualCard?.parentNode) {
-      individualCard.parentNode.insertBefore(div, individualCard.nextSibling);
-    } else {
-      home.prepend(div);
-    }
-
-    div.querySelector('#btn-group-challenge-details')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (typeof renderChallengeDetailModal === 'function') renderChallengeDetailModal(challenge);
-      if (typeof MAPS_loadForCurrentChallenge === 'function') {
-        window.CTX && (window.CTX.challenge = challenge);
-        MAPS_loadForCurrentChallenge();
-      }
-      if (typeof openModal === 'function') openModal('modal-challenge-detail');
-    });
-  }
 
 /* ─────────────────────────────────────────────
    MAIN — DOMContentLoaded
@@ -965,30 +950,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // ── Encuesta — Paso 1: elegir tipo (indoor/outdoor/random) ──
+  // ── Encuesta — Paso 1: tipo (indoor/outdoor/random) ──
   document.querySelectorAll('.poll-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      // Bloquear si ya se eligió hoy (y el reto está cargado)
       if (window.challengeState?.pollChosen && window.challengeState?.todayDate === todayString()) {
         showToast('Ya elegiste el tipo de reto hoy 💪', '');
         return;
       }
       document.querySelectorAll('.poll-btn').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
-
-      // Si el clima ya decidió automáticamente, usar ese tipo
       const vote = window.CTX?.autoType || btn.dataset.vote;
       window.CTX && (window.CTX.pollType = vote);
-
-      // Mostrar la sección de energía
       const energySection = document.getElementById('poll-energy-section');
       if (energySection) energySection.style.display = '';
-
       showToast('Ahora elige tu nivel de energía ⚡', '');
     });
   });
 
-  // ── Encuesta — Paso 2: elegir energía -> cargar reto
+  // ── Encuesta — Paso 2: energía ──
   document.querySelectorAll('.energy-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       if (window.challengeState?.pollChosen && window.challengeState?.todayDate === todayString()) {
@@ -997,67 +976,27 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       document.querySelectorAll('.energy-btn').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
-
       const energy = btn.dataset.energy;
       window.CTX && (window.CTX.energyLevel = energy);
-
-      // Determinar tipo (automático por clima o manual)
       const type = window.CTX?.pollType || window.CTX?.autoType || 'outdoor';
-
-      // Obtener userId para el reto determinista por usuario
       const userId = state.user?.uid || 'guest';
       const today  = todayString();
-
-      // Seleccionar reto: diferente por usuario, igual para el mismo usuario cada día
-      const challenge = pickChallengeForUser(type, energy, userId, today);
-
-      // Marcar como elegido para no poder cambiar
-      window.challengeState.pollChosen = true;
-      window.challengeState.todayDate  = today;
-      window.challengeState.currentChallenge = challenge;
-      saveChallengeState(window.challengeState);
-
-      // Renderizar reto en la card
-      if (typeof renderChallengeCard === 'function') renderChallengeCard(challenge);
-
-      // Ocultar sección de energía (ya eligió)
+      const challenge = typeof pickChallengeForUser === 'function'
+        ? pickChallengeForUser(type, energy, userId, today)
+        : null;
+      if (challenge) {
+        window.challengeState.pollChosen = true;
+        window.challengeState.todayDate  = today;
+        window.challengeState.currentChallenge = challenge;
+        if (typeof saveChallengeState === 'function') saveChallengeState(window.challengeState);
+        if (typeof renderChallengeCard === 'function') renderChallengeCard(challenge);
+      }
       const energySection = document.getElementById('poll-energy-section');
       if (energySection) energySection.style.display = 'none';
-
-      const toasts = {
-        low:    '🪫 Reto suave asignado',
-        medium: '🔋 Reto moderado asignado',
-        high:   '⚡ Reto intenso asignado',
-      };
+      const toasts = { low: '🪫 Reto suave asignado', medium: '🔋 Reto moderado asignado', high: '⚡ Reto intenso asignado' };
       showToast(toasts[energy] || '✅ ¡Tu reto está listo!', 'success');
     });
   });
-
-  // ── Reto ──
-  /* document.getElementById('btn-complete-challenge')?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    closeModal('modal-challenge-detail');
-    completeChallenge(150, 50, 'Carrera de 5km');
-  });
-
-  document.getElementById('btn-modal-complete')?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    closeModal('modal-challenge-detail');
-    completeChallenge(150, 50, 'Carrera de 5km');
-  });
-
-  document.getElementById('btn-challenge-details')?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    //sincronizar datos del reto actual
-    if (typeof CTX_syncDetailModal === 'function'){
-      CTX_syncDetailModal();
-    }
-    openModal('modal-challenge-detail');
-    //cargar mapa / Street View
-    if (typeof MAPS_loadForCurrentChallenge === 'function'){
-      MAPS_loadForCurrentChallenge();
-    }
-  }); */
 
   // ── Celebración ──
   document.getElementById('btn-close-celebration')?.addEventListener('click', () => {
@@ -1082,7 +1021,7 @@ document.addEventListener('DOMContentLoaded', () => {
     overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(overlay.id); });
   });
 
-  // ── Axustes: editar nome ──
+  // ── Axustes ──
   document.getElementById('settings-edit-name')?.addEventListener('click', () => {
     const newName = prompt('Nuevo nombre de usuario:', state.userDoc?.name || '');
     if (newName && newName.trim()) { saveUser({ name: newName.trim() }); showToast('Nombre actualizado ✅', 'success'); }
@@ -1093,20 +1032,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('chat-input')?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') sendMessage();
   });
-
-  /* document.querySelectorAll('.energy-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.energy-btn').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-      window.CTX.energyLevel = btn.dataset.energy;
-
-      // Si ya hay tipo seleccionado, regenerar el reto con la nueva energía
-      const type = window.CTX.pollType || window.CTX.autoType || 'outdoor';
-      const ch   = pickChallenge(type, btn.dataset.energy);
-      CTX_renderChallenge(ch);
-      showToast({ low: '🔋 Reto suave activado', medium: '🔋 Reto moderado', high: '⚡ Reto intenso' }[btn.dataset.energy], 'success');
-    });
-  }); */
 
   // ── Renders iniciais ──
   renderShop('powerups');
