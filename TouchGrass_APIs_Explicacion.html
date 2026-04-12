@@ -447,11 +447,10 @@
 
   <!-- ══ COVER ══ -->
   <div class="cover">
-    <div class="cover-tag">📋 Documentación técnica · TouchGrass</div>
+    <div class="cover-tag">📋 Documentación técnica de lo usado en TouchGrass</div>
     <h1>Stack técnico<br>y uso de <em>APIs</em></h1>
     <p class="cover-desc">
-      Explicación detallada de todas las tecnologías, servicios externos y APIs integradas en TouchGrass:
-      qué son, para qué sirven, cómo se cargan, cómo fluyen los datos y dónde aparecen en el código.
+      Explicación detallada de todas las tecnologías, servicios externos y APIs integradas en TouchGrass.
     </p>
 
     <table class="stack-table">
@@ -459,69 +458,52 @@
         <tr>
           <th>Capa</th>
           <th>Tecnología</th>
-          <th>Coste / Auth</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="layer">Frontend</td>
-          <td class="tech">HTML5 · CSS3 · JavaScript (Vanilla ES2022)</td>
-          <td><span class="stack-tag tag-free">GRATIS</span></td>
+          <td class="layer">Código</td>
+          <td class="tech">HTML5, CSS3, JavaScript</td>
         </tr>
         <tr>
           <td class="layer">Base de datos</td>
           <td class="tech">Firebase Firestore (NoSQL)</td>
-          <td><span class="stack-tag tag-firebase">PLAN FREE</span></td>
         </tr>
         <tr>
           <td class="layer">Autenticación</td>
-          <td class="tech">Firebase Auth — Google OAuth 2.0</td>
-          <td><span class="stack-tag tag-firebase">PLAN FREE</span></td>
+          <td class="tech">Firebase Auth</td>
         </tr>
         <tr>
           <td class="layer">Clima</td>
           <td class="tech">Open-Meteo API</td>
-          <td><span class="stack-tag tag-free">GRATIS · SIN KEY</span></td>
         </tr>
         <tr>
           <td class="layer">Geolocalización</td>
           <td class="tech">Web Geolocation API (navegador)</td>
-          <td><span class="stack-tag tag-free">GRATIS · NATIVA</span></td>
         </tr>
         <tr>
-          <td class="layer">Geocodificación inversa</td>
-          <td class="tech">Nominatim / OpenStreetMap</td>
-          <td><span class="stack-tag tag-free">GRATIS · SIN KEY</span></td>
+          <td class="layer">Geocodificación</td>
+          <td class="tech">Nominatim (OpenStreetMap)</td>
         </tr>
         <tr>
-          <td class="layer">Mapas + Street View</td>
-          <td class="tech">Google Maps JavaScript API</td>
-          <td><span class="stack-tag tag-key">API KEY</span></td>
+          <td class="layer">Mapas</td>
+          <td class="tech">Google Maps JavaScript API + Street View</td>
         </tr>
         <tr>
           <td class="layer">Imagen de mapa (fallback)</td>
           <td class="tech">Google Maps Static API</td>
-          <td><span class="stack-tag tag-key">API KEY</span></td>
         </tr>
         <tr>
           <td class="layer">Búsqueda de lugares</td>
           <td class="tech">Google Places API</td>
-          <td><span class="stack-tag tag-key">API KEY</span></td>
         </tr>
         <tr>
-          <td class="layer">Confeti animado</td>
+          <td class="layer">Confeti</td>
           <td class="tech">canvas-confetti (CDN)</td>
-          <td><span class="stack-tag tag-free">GRATIS</span></td>
-        </tr>
-        <tr>
-          <td class="layer">Tipografía</td>
-          <td class="tech">Google Fonts (Syne + Space Grotesk)</td>
-          <td><span class="stack-tag tag-free">GRATIS</span></td>
         </tr>
         <tr>
           <td class="layer">Hosting</td>
           <td class="tech">GitHub Pages</td>
-          <td><span class="stack-tag tag-free">GRATIS</span></td>
         </tr>
       </tbody>
     </table>
@@ -531,16 +513,16 @@
   <div class="toc">
     <h3>Índice de contenidos</h3>
     <ol>
-      <li><a href="#s1"><span class="toc-num">01</span> Frontend puro — HTML, CSS y JavaScript</a></li>
+      <li><a href="#s1"><span class="toc-num">01</span> Código puro — HTML, CSS y JavaScript</a></li>
       <li><a href="#s2"><span class="toc-num">02</span> Firebase Auth — Autenticación con Google</a></li>
       <li><a href="#s3"><span class="toc-num">03</span> Firebase Firestore — Base de datos en tiempo real</a></li>
       <li><a href="#s4"><span class="toc-num">04</span> Web Geolocation API — GPS del dispositivo</a></li>
       <li><a href="#s5"><span class="toc-num">05</span> Open-Meteo API — Datos meteorológicos</a></li>
-      <li><a href="#s6"><span class="toc-num">06</span> Nominatim / OpenStreetMap — Nombre de ciudad</a></li>
+      <li><a href="#s6"><span class="toc-num">06</span> Nominatim (OpenStreetMap) — Nombre de ciudad</a></li>
       <li><a href="#s7"><span class="toc-num">07</span> Google Maps JavaScript API — El núcleo de los mapas</a></li>
       <li><a href="#s8"><span class="toc-num">08</span> Google Geocoding API — Nombre → Coordenadas</a></li>
       <li><a href="#s9"><span class="toc-num">09</span> Google Street View — Vista inmersiva del lugar</a></li>
-      <li><a href="#s10"><span class="toc-num">10</span> Google Maps Static API — Imagen de mapa (fallback)</a></li>
+      <li><a href="#s10"><span class="toc-num">10</span> Google Maps Static API — Imagen de mapa</a></li>
       <li><a href="#s11"><span class="toc-num">11</span> Google Places API — Librería de lugares</a></li>
       <li><a href="#s12"><span class="toc-num">12</span> Flujo completo de APIs encadenadas</a></li>
       <li><a href="#s13"><span class="toc-num">13</span> Configuración en Google Cloud Console</a></li>
@@ -552,42 +534,42 @@
        SECCIÓN 1 — FRONTEND
   ══════════════════════════════════ -->
   <div class="section" id="s1">
-    <div class="section-num">01 / Frontend</div>
+    <div class="section-num">01 / Código</div>
     <h2>HTML5, CSS3 y JavaScript</h2>
-    <p class="section-subtitle">La base de toda la aplicación. Sin frameworks, sin compiladores. Solo el navegador.</p>
+    <p class="section-subtitle">Es la base de toda la aplicación.</p>
 
     <div class="api-card">
       <div class="api-card-header">
         <div class="api-icon" style="background:#1e293b;">🌐</div>
         <div class="api-card-header-text">
-          <div class="api-name">Vanilla JavaScript ES2022 + HTML5 + CSS3
+          <div class="api-name"> JavaScript + HTML5 + CSS3
             <span class="pill" style="background:var(--green-dim);color:var(--green);">Sin frameworks</span>
           </div>
-          <div class="api-desc-short">Toda la lógica de la aplicación está escrita en JavaScript puro, sin React, Vue ni Angular. Esto permite cargar la app directamente desde GitHub Pages sin ningún proceso de build.</div>
+          <div class="api-desc-short">Toda la lógica de la aplicación está escrita en JavaScript puro, esto permite cargar la app directamente desde GitHub Pages.</div>
         </div>
       </div>
       <div class="api-card-body">
         <div class="api-block">
-          <h4>Por qué este enfoque</h4>
-          <p>Una aplicación móvil-first que se sirve como página web estática necesita el menor overhead posible. Vanilla JS arranca en milisegundos y no requiere Node.js, npm ni Webpack. Los archivos se sirven tal cual están en el repositorio de GitHub.</p>
+          <h4>¿Por qué este enfoque?</h4>
+          <p>Una aplicación móvil que se sirve como página web necesita el menor overhead posible. JavaScript arranca rápido y no requiere elementos adicionales. Los archivos se sirven tal cual están en el repositorio de GitHub.</p>
         </div>
         <div class="api-block">
           <h4>Estructura de archivos</h4>
           <ul>
-            <li><code>index.html</code> — Toda la estructura HTML de la app (pantallas, modales, navegación). Una sola página (SPA manual)</li>
-            <li><code>css/styles.css</code> — Sistema de diseño completo: variables CSS, tipografía, componentes, dark mode nativo</li>
+            <li><code>index.html</code> — Toda la estructura HTML de la app (pantallas, modales, navegación).</li>
+            <li><code>css/styles.css</code> — Sistema de diseño completo: variables CSS, tipografía, componentes, modo oscuro</li>
             <li><code>css/context.css</code> — Estilos de los componentes dinámicos: banner de clima, botones de encuesta, energía</li>
-            <li><code>css/tracker.css</code> — Panel del tracker GPS, placeholder, badges de grupo, Street View</li>
+            <li><code>css/tracker.css</code> — Panel del tracker GPS, badges de grupo, Street View</li>
             <li><code>js/app.js</code> — Lógica principal: autenticación, grupos, leaderboard, chat, navegación</li>
-            <li><code>js/challenges.js</code> — Motor de retos: selección, tracker GPS, renderizado, completar</li>
+            <li><code>js/challenges.js</code> — Motor de retos: selección, tracker GPS, renderizado, completar retos</li>
             <li><code>js/context.js</code> — Detección de contexto: clima, ciudad, tipo automático de reto</li>
             <li><code>js/maps.js</code> — Integración con Google Maps: Street View, geocodificación, mapa estático</li>
             <li><code>js/firebase-config.js</code> — Inicialización de Firebase con las credenciales del proyecto</li>
           </ul>
         </div>
         <div class="api-block">
-          <h4>Patrón SPA (Single Page Application)</h4>
-          <p>El HTML define varias "pantallas" (<code>.screen</code>) y "páginas" (<code>.page</code>) que se muestran u ocultan añadiendo/quitando la clase <code>active</code>. Nunca hay recarga de página. La navegación es instantánea.</p>
+          <h4>Patrón Single Page Application</h4>
+          <p>El HTML define varias "pantallas" (<code>.screen</code>) y "páginas" (<code>.page</code>) que se muestran u ocultan añadiendo o quitando la clase <code>active</code>.</p>
           <div class="code-block">
 <span class="c-comment">// app.js — Cambiar pantalla activa</span>
 <span class="c-fn">function</span> <span class="c-fn">showScreen</span>(id) {
@@ -603,7 +585,7 @@
         </div>
         <div class="api-block">
           <h4>Variables CSS como sistema de diseño</h4>
-          <p>Todo el sistema visual (colores, tipografía, espaciados, radios) está definido en variables CSS en <code>:root</code>. Cambiar un color en una variable lo actualiza en toda la aplicación automáticamente.</p>
+          <p>Todo el sistema visual (colores, tipografía, espaciados, radios) está definido en variables CSS en <code>:root</code>. De modo que cambiar un color en una variable lo actualiza en toda la aplicación automáticamente.</p>
           <div class="code-block">
 <span class="c-comment">/* styles.css */</span>
 :root {
@@ -624,8 +606,8 @@
   ══════════════════════════════════ -->
   <div class="section" id="s2">
     <div class="section-num">02 / Autenticación</div>
-    <h2>Firebase Auth — Google OAuth</h2>
-    <p class="section-subtitle">El sistema que identifica a cada usuario de forma segura, sin contraseñas.</p>
+    <h2>Firebase Auth</h2>
+    <p class="section-subtitle">El sistema que identifica a cada usuario de forma segura.</p>
 
     <div class="api-card">
       <div class="api-card-header">
@@ -634,16 +616,16 @@
           <div class="api-name">Firebase Authentication
             <span class="pill" style="background:var(--yellow-dim);color:var(--yellow);">FIREBASE SDK</span>
           </div>
-          <div class="api-desc-short">Permite a los usuarios iniciar sesión con su cuenta de Google con un solo clic. Firebase gestiona tokens, sesiones y seguridad automáticamente.</div>
+          <div class="api-desc-short">Permite a los usuarios iniciar sesión con su cuenta de Google. Firebase gestiona tokens, sesiones y seguridad automáticamente.</div>
         </div>
       </div>
       <div class="api-card-body">
         <div class="api-block">
-          <h4>Qué es Firebase Auth</h4>
-          <p>Firebase Authentication es un servicio de Google que actúa como intermediario entre la app y el proveedor de identidad (en este caso, Google). Cuando el usuario pulsa "Continuar con Google", Firebase abre un popup seguro de Google, el usuario autoriza la app, y Firebase devuelve un objeto <code>user</code> con su UID único, nombre, email y foto. La app <em>nunca</em> maneja contraseñas.</p>
+          <h4>¿Qué es Firebase Auth?</h4>
+          <p>Firebase Authentication es un servicio de Google que actúa como intermediario entre la app y el proveedor de identidad (en este caso, Google). Cuando el usuario pulsa "Continuar con Google", Firebase abre una ventana de Google, el usuario autoriza la app, y Firebase devuelve un objeto <code>user</code> con su UID único, nombre, email y foto.</p>
         </div>
         <div class="api-block">
-          <h4>Cómo se carga en la app</h4>
+          <h4>¿Cómo se carga en la app?</h4>
           <div class="code-block">
 <span class="c-comment">&lt;!-- index.html: SDK de Firebase cargado antes de todo --&gt;</span>
 &lt;script src=<span class="c-str">"https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"</span>&gt;&lt;/script&gt;
@@ -661,14 +643,14 @@ firebase.<span class="c-fn">initializeApp</span>(firebaseConfig);
               <div class="flow-dot" style="background:var(--blue-dim);color:var(--blue);">1</div>
               <div class="flow-content">
                 <strong>Usuario pulsa "Continuar con Google"</strong>
-                <span>Se llama a <code>auth.signInWithPopup(googleProvider)</code>. Firebase abre el popup de Google de forma segura.</span>
+                <span>Se llama a <code>auth.signInWithPopup(googleProvider)</code>.</span>
               </div>
             </div>
             <div class="flow-step">
               <div class="flow-dot" style="background:var(--blue-dim);color:var(--blue);">2</div>
               <div class="flow-content">
                 <strong>Google autentica al usuario</strong>
-                <span>Google verifica credenciales y devuelve un token OAuth 2.0 a Firebase. El usuario ve la pantalla de selección de cuenta de Google.</span>
+                <span>Google verifica credenciales y devuelve un token OAuth 2.0 a Firebase. En este momento, el usuario ve la pantalla de selección de cuenta de Google.</span>
               </div>
             </div>
             <div class="flow-step">
@@ -682,7 +664,7 @@ firebase.<span class="c-fn">initializeApp</span>(firebaseConfig);
               <div class="flow-dot" style="background:var(--blue-dim);color:var(--blue);">4</div>
               <div class="flow-content">
                 <strong>La app crea o carga el perfil</strong>
-                <span>Se consulta Firestore: si el UID existe, se carga el perfil. Si no existe, se crea un documento nuevo con XP=0, racha=0, grupos vacíos.</span>
+                <span>Se consulta Firestore: si el UID existe, se carga el perfil. Si no existe, se crea un documento nuevo con XP=0, racha=0 y grupos vacíos.</span>
               </div>
             </div>
           </div>
@@ -730,33 +712,9 @@ auth.<span class="c-fn">onAuthStateChanged</span>(<span class="c-key">async</spa
           <div class="api-desc-short">Almacena perfiles de usuario, grupos, mensajes de chat, notificaciones y el estado de retos. Los cambios se sincronizan en todos los dispositivos conectados en tiempo real sin necesidad de recargar.</div>
         </div>
       </div>
-      <div class="api-card-body">
-        <div class="api-block">
-          <h4>Estructura de la base de datos</h4>
-          <div class="code-block">
-Firestore (NoSQL — colecciones de documentos)
-│
-├── users/{uid}
-│   ├── name, email, photoURL
-│   ├── xp, coins, streak
-│   ├── groupIds: [id1, id2, ...]   <span class="c-comment">← multi-grupo</span>
-│   └── completedChallenges: [...]
-│
-├── groups/{groupId}
-│   ├── name, code, ownerId
-│   └── members: [uid1, uid2, ...]
-│
-├── messages/{msgId}
-│   ├── groupId, uid, name
-│   ├── text, timestamp
-│
-└── notifications/{notifId}
-    ├── toUid, type, text
-    └── day, unread, date</div>
-        </div>
         <div class="api-block">
           <h4>Listeners en tiempo real</h4>
-          <p>Firestore permite suscribirse a un documento o colección. Cada vez que los datos cambian en el servidor, el callback se ejecuta automáticamente en todos los clientes suscritos. Esto permite que el leaderboard y el chat se actualicen en tiempo real sin polling.</p>
+          <p>Firestore permite suscribirse a un documento o colección. Cada vez que los datos cambian en el servidor, el callback se ejecuta automáticamente en todos los clientes suscritos. Esto permite que el leaderboard y el chat se actualicen en tiempo real.</p>
           <div class="code-block">
 <span class="c-comment">// app.js — Leaderboard en tiempo real</span>
 <span class="c-comment">// onSnapshot dispara el callback cada vez que hay cambios</span>
@@ -792,7 +750,7 @@ db.<span class="c-fn">collection</span>(<span class="c-str">'users'</span>)
   <div class="section" id="s4">
     <div class="section-num">04 / GPS del dispositivo</div>
     <h2>Web Geolocation API</h2>
-    <p class="section-subtitle">API nativa del navegador que accede al GPS del dispositivo. No requiere ninguna librería externa.</p>
+    <p class="section-subtitle">API nativa del navegador que accede al GPS del dispositivo.</p>
 
     <div class="api-card">
       <div class="api-card-header">
@@ -801,13 +759,13 @@ db.<span class="c-fn">collection</span>(<span class="c-str">'users'</span>)
           <div class="api-name">navigator.geolocation
             <span class="pill" style="background:var(--green-dim);color:var(--green);">NATIVA · SIN KEY</span>
           </div>
-          <div class="api-desc-short">API estándar del navegador W3C que solicita acceso al GPS del dispositivo. Funciona en móvil y escritorio. El usuario debe conceder permiso explícitamente. Usada en dos contextos distintos en la app.</div>
+          <div class="api-desc-short">API del navegador que solicita acceso al GPS del dispositivo. Para su uso, el usuario debe conceder permiso explícitamente. Usada en dos contextos distintos en la app.</div>
         </div>
       </div>
       <div class="api-card-body">
         <div class="api-block">
-          <h4>Uso 1: Detectar la ciudad del usuario (una vez al cargar)</h4>
-          <p>Al inicializar la app, se obtiene la posición una sola vez para saber en qué ciudad está el usuario. Estas coordenadas se envían a Open-Meteo (clima) y a Nominatim (nombre de ciudad).</p>
+          <h4>Uso 1: Detectar la ciudad del usuario (una vez al cargar la aplicación)</h4>
+          <p>Al inicializar la app, se obtiene la posición del usuario una sola vez para saber en qué ciudad está situado Estas coordenadas se envían a Open-Meteo (clima) y a Nominatim (nombre de ciudad).</p>
           <div class="code-block">
 <span class="c-comment">// context.js — Obtener posición única</span>
 <span class="c-fn">function</span> <span class="c-fn">CTX_requestLocation</span>() {
@@ -821,10 +779,10 @@ db.<span class="c-fn">collection</span>(<span class="c-str">'users'</span>)
 }</div>
         </div>
         <div class="api-block">
-          <h4>Uso 2: Tracker GPS continuo (al correr/caminar)</h4>
-          <p>Cuando el usuario activa el tracker para un reto exterior, se usa <code>watchPosition</code> en vez de <code>getCurrentPosition</code>. La diferencia es que <code>watchPosition</code> notifica <em>cada vez que la posición cambia</em>, permitiendo dibujar la ruta y calcular los kilómetros recorridos en tiempo real, igual que Strava.</p>
+          <h4>Uso 2: Tracker GPS continuo (al correr o caminar)</h4>
+          <p>Cuando el usuario activa el tracker para un reto exterior, se usa <code>watchPosition</code> en vez de <code>getCurrentPosition</code>. La diferencia es que <code>watchPosition</code> notifica <em>cada vez que la posición cambia</em>, permitiendo dibujar la ruta y calcular los kilómetros recorridos en tiempo real.</p>
           <div class="code-block">
-<span class="c-comment">// challenges.js — Tracker GPS tipo Strava</span>
+<span class="c-comment">// challenges.js — Tracker GPS</span>
 _trackerWatchId = navigator.geolocation.<span class="c-fn">watchPosition</span>(
   (pos) =&gt; {
     <span class="c-key">const</span> pt = { lat: pos.coords.latitude, lon: pos.coords.longitude, ts: Date.<span class="c-fn">now</span>() };
@@ -847,7 +805,7 @@ navigator.geolocation.<span class="c-fn">clearWatch</span>(_trackerWatchId);</di
         </div>
         <div class="api-block">
           <h4>Fórmula Haversine — Calcular distancia entre coordenadas GPS</h4>
-          <p>Para calcular los kilómetros recorridos, la app usa la fórmula haversine, que calcula la distancia entre dos puntos sobre la superficie esférica de la Tierra a partir de sus coordenadas de latitud y longitud. Es la misma fórmula que usan apps como Strava o Google Maps para medir distancias.</p>
+          <p>Para calcular los kilómetros recorridos, la app usa la fórmula haversine, que calcula la distancia entre dos puntos sobre la superficie esférica de la Tierra a partir de sus coordenadas de latitud y longitud. Es la misma fórmula que usan apps como Google Maps para medir distancias.</p>
           <div class="code-block">
 <span class="c-comment">// challenges.js — Distancia entre dos puntos GPS en km</span>
 <span class="c-fn">function</span> <span class="c-fn">_haversineKm</span>(lat1, lon1, lat2, lon2) {
@@ -861,8 +819,8 @@ navigator.geolocation.<span class="c-fn">clearWatch</span>(_trackerWatchId);</di
 }</div>
         </div>
         <div class="api-block">
-          <h4>Detección de llegada al checkpoint (80 metros)</h4>
-          <p>Algunos retos requieren llegar a un punto concreto (ej: la Catedral de Santiago). El tracker comprueba en cada actualización de posición si la distancia al checkpoint es menor de 80 metros. Si es así, el reto se completa automáticamente.</p>
+          <h4>Detección de llegada al checkpoint (80 metros de margen)</h4>
+          <p>Algunos retos requieren llegar a un punto concreto (por ejemplo, Catedral de Santiago). El tracker comprueba en cada actualización de posición si la distancia al checkpoint es menor de 80 metros para marcar completado el reto. </p>
           <div class="code-block">
 <span class="c-comment">// challenges.js — Comprobar llegada al checkpoint</span>
 <span class="c-key">const</span> distM = <span class="c-fn">_haversineKm</span>(lat, lon, cpLat, cpLon) * <span class="c-val">1000</span>; <span class="c-comment">// metros</span>
@@ -873,7 +831,7 @@ navigator.geolocation.<span class="c-fn">clearWatch</span>(_trackerWatchId);</di
         </div>
         <div class="infobox warn">
           <strong>Permiso requerido</strong>
-          El navegador siempre pide permiso al usuario antes de acceder al GPS. Si el usuario deniega el permiso, la app funciona igualmente pero sin geolocalización: no detecta clima, no activa el tracker ni detecta la llegada al checkpoint.
+          El navegador siempre pide permiso al usuario antes de acceder al GPS. Si el usuario deniega el permiso, la app funciona igualmente pero sin geolocalización: no detecta el clima actual, no activa el tracker ni detecta la llegada al checkpoint.
         </div>
       </div>
     </div>
@@ -886,34 +844,34 @@ navigator.geolocation.<span class="c-fn">clearWatch</span>(_trackerWatchId);</di
   <div class="section" id="s5">
     <div class="section-num">05 / Clima</div>
     <h2>Open-Meteo API</h2>
-    <p class="section-subtitle">Datos meteorológicos en tiempo real, completamente gratuitos y sin necesidad de API key.</p>
+    <p class="section-subtitle">Datos meteorológicos en tiempo real, sin necesidad de API key.</p>
 
     <div class="api-card">
       <div class="api-card-header">
         <div class="api-icon" style="background:#dbeafe;">🌤️</div>
         <div class="api-card-header-text">
           <div class="api-name">Open-Meteo (api.open-meteo.com)
-            <span class="pill" style="background:var(--green-dim);color:var(--green);">GRATIS · SIN KEY</span>
+            <span class="pill" style="background:var(--green-dim);color:var(--green);">SIN KEY</span>
           </div>
-          <div class="api-desc-short">API meteorológica de código abierto que proporciona temperatura actual y código de tiempo (WMO) para cualquier coordenada GPS del mundo. La app la usa para decidir automáticamente si proponer un reto interior o exterior según el tiempo.</div>
+          <div class="api-desc-short">API meteorológica de código abierto que proporciona temperatura actual y código de tiempo para cualquier coordenada GPS del mundo. La app la usa para decidir automáticamente si proponer un reto interior o exterior según el tiempo.</div>
         </div>
       </div>
       <div class="api-card-body">
         <div class="api-block">
-          <h4>Qué datos devuelve y para qué se usan</h4>
+          <h4>¿Qué datos devuelve y para qué se usan?</h4>
           <div class="grid-2">
             <div class="mini-card">
               <h5 style="color:var(--orange);">🌡️ temperature_2m</h5>
-              <p>Temperatura actual en grados Celsius a 2 metros del suelo. Se muestra en el banner de clima: "Santiago · Nublado · 14°C"</p>
+              <p>Es la temperatura actual en grados Celsius a 2 metros del suelo. Se muestra en el banner de clima al entrar en la aplicación, por ejemplo: "Santiago · Nublado · 14°C"</p>
             </div>
             <div class="mini-card">
               <h5 style="color:var(--blue);">☁️ weather_code (WMO)</h5>
-              <p>Código numérico estándar WMO que describe el estado del cielo (0=despejado, 61=lluvia, 95=tormenta...). Decide si el reto es exterior o interior.</p>
+              <p>Código numérico estándar que describe el estado del cielo (0=despejado, 61=lluvia, 95=tormenta...). Esto permite decidir si el reto es exterior o interior.</p>
             </div>
           </div>
         </div>
         <div class="api-block">
-          <h4>Cómo se construye la petición</h4>
+          <h4>¿Cómo se construye la petición?</h4>
           <div class="code-block">
 <span class="c-comment">// context.js — Petición a Open-Meteo</span>
 <span class="c-key">async function</span> <span class="c-fn">CTX_fetchWeather</span>(lat, lon) {
@@ -932,7 +890,7 @@ navigator.geolocation.<span class="c-fn">clearWatch</span>(_trackerWatchId);</di
         </div>
         <div class="api-block">
           <h4>Tabla de códigos WMO implementada en la app</h4>
-          <p>La app tiene una tabla de traducción de códigos WMO a descripción, emoji y si el tiempo es apto para exterior. Así decide automáticamente qué tipo de reto proponer:</p>
+          <p>La app tiene una tabla de traducción de códigos WMO a descripción, emoji y si el tiempo es apto para exterior. De esta forma decide automáticamente qué tipo de reto proponer:</p>
           <div class="code-block">
 <span class="c-comment">// context.js — Tabla WMO</span>
 <span class="c-key">const</span> _WMO = {
@@ -947,7 +905,7 @@ window.CTX.autoType = info.outdoor ? <span class="c-str">'outdoor'</span> : <spa
         </div>
         <div class="api-block">
           <h4>Efecto en la UI: el banner de clima</h4>
-          <p>Tras obtener el clima, se inyecta dinámicamente un banner en la parte superior de la app con el emoji del tiempo, la descripción, la temperatura y la ciudad. El banner se auto-oculta tras 7 segundos con una animación CSS.</p>
+          <p>Tras obtener el clima, se inyecta dinámicamente un banner en la parte superior de la app con el emoji del tiempo, la descripción, la temperatura y la ciudad. El banner se auto-oculta tras 7 segundos con una animación CSS, pero permanece una pequeña descripción del tiempo y temperatura en la parte superior de la página principal.</p>
         </div>
       </div>
     </div>
@@ -958,27 +916,27 @@ window.CTX.autoType = info.outdoor ? <span class="c-str">'outdoor'</span> : <spa
        SECCIÓN 6 — NOMINATIM
   ══════════════════════════════════ -->
   <div class="section" id="s6">
-    <div class="section-num">06 / Geocodificación inversa</div>
-    <h2>Nominatim / OpenStreetMap</h2>
-    <p class="section-subtitle">Convierte coordenadas GPS (latitud, longitud) en un nombre de ciudad legible. Sin coste, sin registro.</p>
+    <div class="section-num">06 / Geocodificación</div>
+    <h2>Nominatim (OpenStreetMap)</h2>
+    <p class="section-subtitle">Convierte coordenadas GPS (latitud, longitud) en un nombre de ciudad legible. </p>
 
     <div class="api-card">
       <div class="api-card-header">
         <div class="api-icon" style="background:#d1fae5;">🗺️</div>
         <div class="api-card-header-text">
           <div class="api-name">Nominatim (nominatim.openstreetmap.org)
-            <span class="pill" style="background:var(--green-dim);color:var(--green);">GRATIS · SIN KEY</span>
+            <span class="pill" style="background:var(--green-dim);color:var(--green);">SIN KEY</span>
           </div>
-          <div class="api-desc-short">Servicio de geocodificación inversa de OpenStreetMap. Dado un par de coordenadas, devuelve la dirección y ciudad correspondientes. Se usa exclusivamente para mostrar el nombre de la ciudad en el banner de clima.</div>
+          <div class="api-desc-short">Servicio de geocodificación inversa de OpenStreetMap. Dado un par de coordenadas, devuelve la dirección y ciudad correspondientes. Se usa exclusivamente en la aplicación para mostrar el nombre de la ciudad en el banner de clima.</div>
         </div>
       </div>
       <div class="api-card-body">
         <div class="api-block">
-          <h4>Qué es geocodificación inversa</h4>
+          <h4>¿Qué es geocodificación inversa?</h4>
           <p>La geocodificación directa convierte un nombre ("Madrid") en coordenadas. La <strong>geocodificación inversa</strong> hace el proceso contrario: convierte coordenadas (40.4168, -3.7038) en un nombre legible ("Madrid"). Nominatim usa la base de datos cartográfica de OpenStreetMap, que es colaborativa y de libre acceso.</p>
         </div>
         <div class="api-block">
-          <h4>Cómo se usa en el código</h4>
+          <h4>¿Cómo se usa en el código?</h4>
           <div class="code-block">
 <span class="c-comment">// context.js — Obtener nombre de ciudad</span>
 <span class="c-key">async function</span> <span class="c-fn">CTX_fetchCity</span>(lat, lon) {
@@ -1000,7 +958,7 @@ window.CTX.autoType = info.outdoor ? <span class="c-str">'outdoor'</span> : <spa
         </div>
         <div class="infobox note">
           <strong>Open-Meteo + Nominatim: en paralelo</strong>
-          Ambas peticiones se lanzan simultáneamente con <code>Promise.all([CTX_fetchWeather(), CTX_fetchCity()])</code>. Esto reduce el tiempo de espera a la duración de la petición más lenta (no se suman).
+          Ambas peticiones se lanzan simultáneamente con <code>Promise.all([CTX_fetchWeather(), CTX_fetchCity()])</code>. Esto reduce el tiempo de espera a la duración de la petición más lenta (tener en cuenta que no se suman).
         </div>
       </div>
     </div>
@@ -1013,7 +971,7 @@ window.CTX.autoType = info.outdoor ? <span class="c-str">'outdoor'</span> : <spa
   <div class="section" id="s7">
     <div class="section-num">07 / Google Maps</div>
     <h2>Google Maps JavaScript API</h2>
-    <p class="section-subtitle">El núcleo de toda la integración con Google Maps. Una única clave de API que activa múltiples servicios.</p>
+    <p class="section-subtitle">Es el núcleo de toda la integración con Google Maps. Una única clave de API que activa múltiples servicios.</p>
 
     <div class="api-card">
       <div class="api-card-header">
@@ -1028,7 +986,7 @@ window.CTX.autoType = info.outdoor ? <span class="c-str">'outdoor'</span> : <spa
       </div>
       <div class="api-card-body">
         <div class="api-block">
-          <h4>Cómo se carga el SDK</h4>
+          <h4>¿Cómo se carga el SDK?</h4>
           <p>El SDK se carga con un tag <code>&lt;script&gt;</code> al final del HTML, con el atributo <code>async defer</code> para no bloquear el renderizado de la página, y el parámetro <code>callback=MAPS_onLoad</code> que indica a Google qué función ejecutar cuando el SDK esté listo.</p>
           <div class="code-block">
 <span class="c-comment">&lt;!-- index.html — Al final del body, después de todos los demás scripts --&gt;</span>
@@ -1054,17 +1012,16 @@ window.CTX.autoType = info.outdoor ? <span class="c-str">'outdoor'</span> : <spa
 window.MAPS_onLoad = MAPS_onLoad;  <span class="c-comment">// exponer globalmente para que Google lo encuentre</span></div>
         </div>
         <div class="api-block">
-          <h4>Por qué <code>loading=async</code> en la URL</h4>
-          <p>Desde la versión 3.55 de Maps JS API (2024), Google exige incluir el parámetro <code>loading=async</code> en la URL del script para activar el modo de carga optimizado. Sin él, la API funciona pero lanza una advertencia en la consola y puede tener peor rendimiento. Es independiente del <code>async defer</code> del tag HTML.</p>
+          <h4>¿Por qué <code>loading=async</code> en la URL?</h4>
+          <p>Google exige incluir el parámetro <code>loading=async</code> en la URL del script para activar el modo de carga optimizado. Sin él, la API funciona pero lanza una advertencia en la consola y puede tener peor rendimiento. Es independiente del <code>async defer</code> del tag HTML.</p>
         </div>
         <div class="api-block">
           <h4>Servicios incluidos en el SDK</h4>
-          <p>Una vez cargado el SDK de Maps JS, quedan disponibles automáticamente varios servicios a través del objeto <code>google.maps</code>:</p>
+          <p>Una vez cargado el SDK de Maps JavaScript, quedan disponibles automáticamente varios servicios a través del objeto <code>google.maps</code>:</p>
           <ul>
             <li><code>google.maps.Geocoder</code> — Geocodificación directa e inversa</li>
             <li><code>google.maps.StreetViewPanorama</code> — Street View interactivo</li>
             <li><code>google.maps.StreetViewService</code> — Comprobar disponibilidad de Street View</li>
-            <li><code>google.maps.Map</code> — Mapa interactivo (no usado directamente, pero disponible)</li>
           </ul>
         </div>
       </div>
@@ -1092,7 +1049,7 @@ window.MAPS_onLoad = MAPS_onLoad;  <span class="c-comment">// exponer globalment
       </div>
       <div class="api-card-body">
         <div class="api-block">
-          <h4>Para qué se usa en TouchGrass</h4>
+          <h4>¿Para qué se usa en TouchGrass?</h4>
           <p>Cada reto exterior con checkpoint tiene un campo <code>checkpoint.query</code> con el nombre del lugar en lenguaje natural. Cuando el usuario abre el modal de detalles del reto, la app geocodifica ese nombre para obtener las coordenadas exactas. Esas coordenadas se usan para tres cosas: mostrar Street View, ofrecer un link de "Cómo llegar" y detectar si el tracker llega al checkpoint.</p>
         </div>
         <div class="api-block">
@@ -1112,7 +1069,7 @@ window.MAPS_onLoad = MAPS_onLoad;  <span class="c-comment">// exponer globalment
                 query: <span class="c-str">'Alameda de Santiago de Compostela'</span> } },</div>
         </div>
         <div class="api-block">
-          <h4>Cómo se realiza la geocodificación</h4>
+          <h4>¿Cómo se realiza la geocodificación?</h4>
           <div class="code-block">
 <span class="c-comment">// maps.js — Geocodificar el nombre del checkpoint</span>
 _geocoder.<span class="c-fn">geocode</span>({ address: <span class="c-str">'Catedral de Santiago de Compostela'</span> }, (results, status) =&gt; {
@@ -1156,15 +1113,15 @@ _geocoder.<span class="c-fn">geocode</span>({ address: <span class="c-str">'Cate
         <div class="api-card-header-text">
           <div class="api-name">StreetViewPanorama + StreetViewService
             <span class="pill" style="background:var(--orange-dim);color:var(--orange);">REQUIERE API KEY</span>
-            <span class="pill" style="background:var(--purple-dim);color:var(--purple);">INCLUIDO EN MAPS JS</span>
+            <span class="pill" style="background:var(--purple-dim);color:var(--purple);">INCLUIDO EN MAPS JavaScript</span>
           </div>
           <div class="api-desc-short">Street View permite al usuario ver el lugar donde tiene que ir antes de salir. Se integra directamente en el modal de detalles del reto, convirtiendo la pantalla de información en una experiencia inmersiva e interactiva.</div>
         </div>
       </div>
       <div class="api-card-body">
         <div class="api-block">
-          <h4>Por qué Street View mejora la experiencia</h4>
-          <p>Ver el punto de destino antes de salir tiene un valor real: el usuario puede reconocer el lugar cuando llegue, orientarse mejor y sentir que el reto es concreto y alcanzable, no abstracto. El Street View es interactivo: el usuario puede girar la vista en 360°, moverse por la calle y acercar el zoom directamente desde la app.</p>
+          <h4>¿Por qué Street View mejora la experiencia?</h4>
+          <p>Ver el punto de destino tiene múltiples ventajas: el usuario puede reconocer el lugar cuando llegue, orientarse mejor y sentir que el reto es concreto y alcanzable, no abstracto. El Street View es interactivo: el usuario puede girar la vista en 360°, moverse por la calle y acercar el zoom directamente desde la app.</p>
         </div>
         <div class="api-block">
           <h4>Flujo de carga del Street View</h4>
@@ -1194,14 +1151,14 @@ _geocoder.<span class="c-fn">geocode</span>({ address: <span class="c-str">'Cate
               <div class="flow-dot" style="background:var(--purple-dim);color:var(--purple);">4a</div>
               <div class="flow-content">
                 <strong>Street View disponible → Panorama interactivo</strong>
-                <span>Se crea un <code>StreetViewPanorama</code> en el contenedor del modal. El usuario puede girar la vista.</span>
+                <span>Se crea un <code>StreetViewPanorama</code> en el contenedor del modal. De este modo el usuario puede girar la vista (incluso moviendo el móvil).</span>
               </div>
             </div>
             <div class="flow-step">
               <div class="flow-dot" style="background:var(--teal-dim);color:var(--teal);">4b</div>
               <div class="flow-content">
                 <strong>Street View no disponible → Mapa estático (fallback)</strong>
-                <span>Se llama a la Static Maps API para obtener una imagen satelital del lugar como alternativa.</span>
+                <span>Se llama a la Static Maps API para obtener una imagen satelital del lugar como alternativa en caso de que no exista una imagen del Street View disponible.</span>
               </div>
             </div>
           </div>
@@ -1229,13 +1186,13 @@ _geocoder.<span class="c-fn">geocode</span>({ address: <span class="c-str">'Cate
     showRoadLabels:    <span class="c-val">true</span>,          <span class="c-comment">// mostrar nombres de calles</span>
   });
   
-  <span class="c-comment">// Añadir link "Cómo llegar" debajo del panorama</span>
+  <span class="c-comment">// Añadir link "Cómo llegar" </span>
   <span class="c-fn">_appendMapsLink</span>(container, lat, lon, label);
 }</div>
         </div>
         <div class="api-block">
-          <h4>Nota sobre "streetview" como librería</h4>
-          <p>Street View <em>no</em> es una librería que se deba importar con <code>libraries=streetview</code>. Está incluido por defecto en el SDK de Maps JavaScript. Solo se necesita importar <code>libraries=places</code> (para la Places API). Intentar importar <code>streetview</code> provoca el error <em>"The library streetview is unknown"</em> en consola.</p>
+          <h4>"streetview" como librería</h4>
+          <p>Street View <em>no</em> es una librería que se deba importar con <code>libraries=streetview</code> (está incluido por defecto en el SDK de Maps JavaScript). Solo se necesita importar <code>libraries=places</code> (para la Places API).</p>
         </div>
       </div>
     </div>
@@ -1256,14 +1213,13 @@ _geocoder.<span class="c-fn">geocode</span>({ address: <span class="c-str">'Cate
         <div class="api-card-header-text">
           <div class="api-name">Maps Static API
             <span class="pill" style="background:var(--orange-dim);color:var(--orange);">REQUIERE API KEY</span>
-            <span class="pill" style="background:var(--teal-dim);color:var(--teal);">FALLBACK</span>
           </div>
-          <div class="api-desc-short">Devuelve una imagen PNG/JPEG de un mapa centrado en unas coordenadas concretas. No es interactivo: es una foto del mapa. Se usa como fallback cuando Street View no tiene cobertura en el punto del reto.</div>
+          <div class="api-desc-short">Devuelve una imagen PNG/JPEG de un mapa centrado en unas coordenadas concretas. No es interactivo: es una foto del mapa. Se usa como alternativa cuando Street View no tiene cobertura en el punto del reto.</div>
         </div>
       </div>
       <div class="api-card-body">
         <div class="api-block">
-          <h4>Cómo funciona: una URL, una imagen</h4>
+          <h4>¿Cómo funciona?: una URL, una imagen</h4>
           <p>La Static Maps API no requiere JavaScript. Es una URL con parámetros que devuelve directamente una imagen. Se puede usar en una etiqueta <code>&lt;img&gt;</code>. La API key se incluye en la URL como parámetro.</p>
           <div class="code-block">
 <span class="c-comment">// maps.js — Construir la URL del mapa estático</span>
@@ -1292,18 +1248,6 @@ container.innerHTML = <span class="c-str">`&lt;img src="${staticUrl}" alt="${lab
   <span class="c-key">return</span> <span class="c-val">null</span>;
 }</div>
         </div>
-        <div class="api-block">
-          <h4>Fallback sin API key: iframe de Google Maps</h4>
-          <p>Si por alguna razón la key no está disponible, la app usa un <code>&lt;iframe&gt;</code> de Google Maps Embed, que permite mostrar un mapa básico sin key (con limitaciones de uso):</p>
-          <div class="code-block">
-<span class="c-comment">// maps.js — Fallback sin key: iframe embed</span>
-container.innerHTML = <span class="c-str">`
-  &lt;iframe
-    src="https://maps.google.com/maps?q=${encodeURIComponent(label)}&output=embed"
-    width="100%" height="220" style="border:0"&gt;
-  &lt;/iframe&gt;
-`</span>;</div>
-        </div>
       </div>
     </div>
   </div>
@@ -1330,7 +1274,7 @@ container.innerHTML = <span class="c-str">`
       </div>
       <div class="api-card-body">
         <div class="api-block">
-          <h4>Por qué se activa en Google Cloud Console</h4>
+          <h4>¿Por qué se activa en Google Cloud Console?</h4>
           <p>Aunque el código actual usa principalmente el <code>Geocoder</code> estándar para los checkpoints, la librería <code>places</code> se importa porque proporciona capacidades adicionales de reconocimiento de lugares que el Geocoder básico no tiene: puede entender nombres ambiguos como "la Catedral" o "el Parque de Bonaval" con mayor precisión que el geocodificador genérico.</p>
         </div>
         <div class="api-block">
@@ -1351,14 +1295,6 @@ google.maps.places.PlacesService
 google.maps.places.Autocomplete
 google.maps.places.PlaceResult</div>
         </div>
-        <div class="api-block">
-          <h4>Capacidades disponibles (para futuras versiones)</h4>
-          <ul>
-            <li><strong>Autocompletado</strong>: Sugerir nombres de lugares mientras el usuario escribe, para crear retos con checkpoints personalizados</li>
-            <li><strong>PlacesService</strong>: Buscar lugares por categoría (parques, monumentos) alrededor de la ubicación del usuario</li>
-            <li><strong>Nearby Search</strong>: Encontrar automáticamente puntos de interés cercanos al usuario para generar checkpoints dinámicos y localizados</li>
-          </ul>
-        </div>
         <div class="infobox note">
           <strong>Habilitado en Google Cloud</strong>
           Places API debe estar habilitada en Google Cloud Console para que la importación funcione. Si no está habilitada, las llamadas a servicios de <code>google.maps.places</code> fallarán silenciosamente. Las APIs habilitadas en el proyecto son: Maps JavaScript API, Places API, Geocoding API, Maps Static API y Street View Static API.
@@ -1374,7 +1310,7 @@ google.maps.places.PlaceResult</div>
   <div class="section" id="s12">
     <div class="section-num">12 / Visión global</div>
     <h2>Flujo completo de APIs encadenadas</h2>
-    <p class="section-subtitle">Cómo se comunican todas las piezas desde que el usuario abre la app hasta que completa un reto exterior.</p>
+    <p class="section-subtitle">¿Cómo se comunican todas las piezas desde que el usuario abre la app hasta que completa un reto exterior?</p>
 
     <div class="api-card">
       <div class="api-card-body" style="padding-top:24px;">
@@ -1407,8 +1343,8 @@ google.maps.places.PlaceResult</div>
           <div class="flow-step">
             <div class="flow-dot" style="background:var(--blue-dim);color:var(--blue);">4</div>
             <div class="flow-content">
-              <strong>El usuario elige energía → se asigna el reto</strong>
-              <span>La función <code>pickChallengeForUser(type, energy, userId, date)</code> usa un hash reproducible para asignar siempre el mismo reto al mismo usuario en el mismo día.</span>
+              <strong>El usuario elige energía</strong>
+              <span>Se asigna un reto a un usuario aleatoriamente.</span>
             </div>
           </div>
 
@@ -1432,7 +1368,7 @@ google.maps.places.PlaceResult</div>
             <div class="flow-dot" style="background:var(--green-dim);color:var(--green);">7</div>
             <div class="flow-content">
               <strong>Usuario activa el tracker GPS y sale a la calle</strong>
-              <span><b>Web Geolocation API</b> en modo <code>watchPosition</code> actualiza la posición continuamente. La fórmula haversine acumula km. El SVG dibuja la ruta en tiempo real.</span>
+              <span><b>Web Geolocation API</b> en modo <code>watchPosition</code> actualiza la posición continuamente y la fórmula haversine acumula km. El SVG dibuja la ruta en tiempo real.</span>
             </div>
           </div>
 
@@ -1456,7 +1392,7 @@ google.maps.places.PlaceResult</div>
   <div class="section" id="s13">
     <div class="section-num">13 / Configuración</div>
     <h2>Google Cloud Console</h2>
-    <p class="section-subtitle">Cómo están configuradas las APIs de Google en el proyecto de Google Cloud.</p>
+    <p class="section-subtitle">¿Cómo están configuradas las APIs de Google en el proyecto de Google Cloud?</p>
 
     <div class="api-card">
       <div class="api-card-body">
@@ -1494,7 +1430,7 @@ google.maps.places.PlaceResult</div>
           <p>Para evitar uso no autorizado de la key, en Google Cloud Console se configuran restricciones en la API key:</p>
           <ul>
             <li><strong>Restricción de aplicación</strong>: Solo se permite el uso desde los dominios específicos de la app (localhost para desarrollo, dominio GitHub Pages para producción)</li>
-            <li><strong>Restricción de API</strong>: La key solo puede llamar a las 5 APIs de la tabla anterior, no a otros servicios de Google</li>
+            <li><strong>Restricción de API</strong>: La key solo puede llamar a las APIs de la tabla anterior, no a otros servicios de Google</li>
           </ul>
         </div>
         <div class="api-block">
@@ -1508,10 +1444,6 @@ google.maps.places.PlaceResult</div>
 <span class="c-val">Firebase</span>        → Plan Spark (gratuito)   <span class="c-comment">// auth + firestore</span>
 <span class="c-val">Google Fonts</span>    → fonts.googleapis.com   <span class="c-comment">// tipografías</span>
 <span class="c-val">canvas-confetti</span> → CDN jsDelivr            <span class="c-comment">// animación de celebración</span></div>
-        </div>
-        <div class="infobox warn">
-          <strong>Cuota gratuita de Google Maps</strong>
-          Google Maps ofrece $200 de crédito mensual gratuito por proyecto, suficiente para miles de peticiones. Para un hackathon o proyecto académico el uso es prácticamente siempre gratuito. La facturación solo se activa si se supera ese crédito, que requeriría decenas de miles de usuarios activos al mes.
         </div>
       </div>
     </div>
